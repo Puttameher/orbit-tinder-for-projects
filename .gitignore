@@ -5,4 +5,5 @@ node_modules/
 data/state.json
 data/evorin-state.json
 data/rally-state.json
+.opencode/
 *.log
