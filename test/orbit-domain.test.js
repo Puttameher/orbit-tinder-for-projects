@@ -6,11 +6,15 @@ import {
   createIntroductionDraft,
   createRemixPlan,
   explainFit,
+  filterOpportunitiesByCategory,
+  getOpportunityCategory,
   normalizeOpportunity,
   normalizeProfile,
   planNextActions,
   rankOpportunities,
   scoreOpportunity,
+  summarizeOpportunity,
+  validateOpportunity,
   validateProfile
 } from '../lib/orbit-domain.js';
 
@@ -57,6 +61,21 @@ test('opportunity normalization keeps source provenance and canonical stage', ()
   assert.equal(opportunity.commitmentHours.maxHoursPerWeek, 2);
 });
 
+test('opportunity categories are deterministic and filterable', () => {
+  const research = { id: 'paper-1', title: 'Climate research paper', summary: 'A study of local heat data.' };
+  const openSource = { id: 'oss-1', title: 'A contributor tool', license: 'open source' };
+  const project = { id: 'project-1', title: 'A neighborhood project', summary: 'A small collaboration.' };
+  assert.equal(getOpportunityCategory(research), 'research-papers');
+  assert.equal(getOpportunityCategory(openSource), 'open-source');
+  assert.equal(getOpportunityCategory(project), 'projects');
+  assert.deepEqual(filterOpportunitiesByCategory([research, openSource, project], 'research'), [research]);
+  assert.equal(normalizeOpportunity(research).category, 'research-papers');
+});
+
+test('opportunity validation rejects unsupported category values', () => {
+  assert.equal(validateOpportunity({ title: 'A project', summary: 'Context', category: 3 }).ok, false);
+});
+
 test('ranking is bounded, stable, and exposes the five weighted feature contributions', () => {
   const ranking = scoreOpportunity(opportunityInput, profileInput, { asOf: '2026-10-20T10:00:00Z' });
   assert.equal(ranking.method, RANKING_METHOD);
@@ -76,6 +95,18 @@ test('fit explanation is bounded and cites strengths, gaps, tradeoffs, and evide
   assert.ok(fit.evidence.length <= 6);
   assert.ok(fit.confidence >= 0 && fit.confidence <= 1);
   assert.ok(fit.evidence.some((item) => item.feature === 'provenance'));
+});
+
+test('local opportunity summary is deterministic, transparent, and offline-safe', () => {
+  const fit = explainFit(opportunityInput, profileInput, { asOf: '2026-10-20T10:00:00Z' });
+  const first = summarizeOpportunity(opportunityInput, fit);
+  const second = summarizeOpportunity(opportunityInput, fit);
+  assert.deepEqual(first, second);
+  assert.equal(first.provider, 'local');
+  assert.equal(first.offlineSafe, true);
+  assert.equal(first.draftOnly, true);
+  assert.equal(first.fitScore, fit.score);
+  assert.ok(first.evidence.length > 0);
 });
 
 test('next-action planning is proposal-only and includes the mutual-interest gate', () => {

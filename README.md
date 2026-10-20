@@ -26,7 +26,9 @@ The default route is the public preview. **Intelligent Artifact (B)** is now the
 4. Inspect the sample analysis and dashboard preview.
 5. Choose a direction, select elements to keep, and submit the explicit approval.
 
-The dashboard preview now demonstrates the requested product surface: a dark glassmorphism application, Tinder-like center card, bottom glass navigation, two corner Orbit Lens instruments, a draggable project, and a procedural AI visual study in place of a static photo. The visual study is clearly labeled illustrative, not a live generated video model. Swipe/save actions and Lens analysis now call the local Orbit API.
+The working application now uses a cosmic-black research dashboard inspired by the supplied Orbit reference: fixed field navigation, top opportunity search, a luminous stacked card deck, Tinder-like pointer/touch swipes, Dismiss / Maybe / Save / Super-like actions, Orbit Lens analysis, and glass mobile navigation for Research papers, Projects, and Open source. The visual study is clearly labeled illustrative, not a live generated video model. Swipe/save actions and Lens analysis call the local Orbit API.
+
+Use **Add an opportunity** in the sidebar to publish your own project, paper, or open-source idea. The form persists the listing locally, classifies it into one of the three sections, and makes it available to the local Orbit summary and fit-analysis agent.
 
 ## Run locally
 
@@ -46,7 +48,7 @@ npm test
 npm run check
 ```
 
-The suite covers upload and legacy compatibility, Orbit profile/opportunity normalization, transparent ranking, fit explanations, proposal-only agent outputs, deterministic ranking evaluation, and remix/introduction safety.
+The suite covers upload and legacy compatibility, Orbit profile/opportunity normalization, category filtering, user-created opportunities, deterministic local summaries, transparent ranking, fit explanations, proposal-only agent outputs, deterministic ranking evaluation, and remix/introduction safety.
 
 ## Docker
 
@@ -65,6 +67,13 @@ Read `ORBIT_ARCHITECTURE.md` for the functional MVP boundary, production archite
 
 ```text
 GET   /api/orbit/state
+GET   /api/orbit/categories
+GET   /api/orbit/opportunities?category=research-papers|projects|open-source
+GET   /api/orbit/research-papers
+GET   /api/orbit/projects
+GET   /api/orbit/open-source
+POST  /api/orbit/opportunities
+GET   /api/orbit/opportunities/:id/summary
 PATCH /api/orbit/profile
 POST  /api/orbit/swipe
 POST  /api/orbit/opportunities/:id/analyze
@@ -74,7 +83,7 @@ POST  /api/orbit/feedback
 POST  /api/orbit/evaluation
 ```
 
-The ranking model is explicitly a transparent deterministic baseline, not trained ML. It exposes feature contributions and a model version. Agent outputs are grounded drafts and never send messages, publish work, or change profile context silently.
+The ranking model is explicitly a transparent deterministic baseline, not trained ML. It exposes feature contributions and a model version. Opportunity categories are classified from declared metadata. `POST /api/orbit/opportunities` validates and persists a local-user collaboration listing in the ignored `data/rally-state.json` file. Summaries and fit explanations use a deterministic local template (`provider: local`, `offlineSafe: true`) and never require network access or claim an external model result. Agent outputs are grounded drafts and never send messages, publish work, or change profile context silently.
 
 ## Remaining production gaps
 

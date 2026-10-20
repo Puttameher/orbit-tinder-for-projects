@@ -16,20 +16,25 @@ import {
 } from './lib/evorin.js';
 import { createRemixPlan, draftIntroduction, explainProjectFit } from './lib/rally.js';
 import {
+  OPPORTUNITY_CATEGORIES,
   createIntroductionDraft as createOrbitIntroductionDraft,
   createRemixPlan as createOrbitRemixPlan,
   explainFit,
+  filterOpportunitiesByCategory,
   normalizeOpportunity,
   normalizeProfile,
   planNextActions,
   rankOpportunities,
+  summarizeOpportunity,
+  validateOpportunity,
+  normalizeOpportunityCategory,
   validateProfile
 } from './lib/orbit-domain.js';
 import { createEvaluationReport, getModelVersionMetadata } from './lib/orbit-eval.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
-const dataDir = path.join(__dirname, 'data');
+const dataDir = path.resolve(process.env.ORBIT_DATA_DIR || path.join(__dirname, 'data'));
 const statePath = path.join(dataDir, 'state.json');
 const evorinStatePath = path.join(dataDir, 'evorin-state.json');
 const rallyStatePath = path.join(dataDir, 'rally-state.json');
@@ -84,6 +89,22 @@ async function saveRallyState(state) {
 function send(res, status, payload, type = 'application/json') {
   res.writeHead(status, { 'Content-Type': `${type}; charset=utf-8`, 'Cache-Control': 'no-store' });
   res.end(type === 'application/json' ? JSON.stringify(payload) : payload);
+}
+
+function orbitError(res, status, code, message, fields = []) {
+  return send(res, status, { error: { code, message, fields } });
+}
+
+async function requestBody(req) {
+  try {
+    const value = await body(req);
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+      return { ok: false, error: { code: 'INVALID_JSON_BODY', message: 'Request body must be a JSON object.', fields: [] } };
+    }
+    return { ok: true, value };
+  } catch {
+    return { ok: false, error: { code: 'INVALID_JSON_BODY', message: 'Request body must contain valid JSON.', fields: [] } };
+  }
 }
 
 async function body(req) {
@@ -324,8 +345,25 @@ function orbitOpportunity(project) {
   });
 }
 
+function orbitCatalog(state, profile, category = null) {
+  const source = category ? filterOpportunitiesByCategory(state.projects, category) : state.projects;
+  const ranked = rankOpportunities(source.map(orbitOpportunity), profile, { asOf: new Date().toISOString() });
+  return ranked.map((item) => ({
+    ...item.opportunity,
+    score: item.score,
+    featureBreakdown: item.featureBreakdown,
+    rank: item.rank
+  }));
+}
+
 async function handleOrbitApi(req, res, pathname) {
   const state = await getRallyState();
+  state.projects = Array.isArray(state.projects) ? state.projects : [];
+  state.swipes = Array.isArray(state.swipes) ? state.swipes : [];
+  state.saved = Array.isArray(state.saved) ? state.saved : [];
+  state.matches = Array.isArray(state.matches) ? state.matches : [];
+  state.remixes = Array.isArray(state.remixes) ? state.remixes : [];
+  state.agentRuns = Array.isArray(state.agentRuns) ? state.agentRuns : [];
   state.feedbackEvents = Array.isArray(state.feedbackEvents) ? state.feedbackEvents : [];
   const profile = orbitProfile(state);
   if (pathname === '/api/orbit/state' && req.method === 'GET') {
@@ -334,18 +372,76 @@ async function handleOrbitApi(req, res, pathname) {
     const discover = ranked.filter((item) => !swiped.has(item.opportunity.id)).map((item) => ({ ...item.opportunity, score: item.score, featureBreakdown: item.featureBreakdown, rank: item.rank }));
     return send(res, 200, { ...state, profile, discover, model: getModelVersionMetadata(), mode: 'functional-mvp' });
   }
+  if (pathname === '/api/orbit/categories' && req.method === 'GET') {
+    const categories = OPPORTUNITY_CATEGORIES.map((category) => ({
+      id: category,
+      count: filterOpportunitiesByCategory(state.projects, category).length
+    }));
+    return send(res, 200, { categories });
+  }
+  if (pathname === '/api/orbit/opportunities' && req.method === 'GET') {
+    const query = new URL(req.url, `http://${req.headers.host || 'localhost'}`).searchParams;
+    const rawCategory = query.get('category');
+    const category = rawCategory ? normalizeOpportunityCategory(rawCategory) : null;
+    if (rawCategory && !category) return orbitError(res, 400, 'INVALID_CATEGORY', `category must be one of: ${OPPORTUNITY_CATEGORIES.join(', ')}.`, [{ field: 'category' }]);
+    const opportunities = orbitCatalog(state, profile, category);
+    return send(res, 200, { category: category || 'all', count: opportunities.length, opportunities, model: getModelVersionMetadata() });
+  }
+  const categoryEndpoint = pathname.match(/^\/api\/orbit\/(research-papers|projects|open-source)$/);
+  if (categoryEndpoint && req.method === 'GET') {
+    const category = normalizeOpportunityCategory(categoryEndpoint[1]);
+    const opportunities = orbitCatalog(state, profile, category);
+    return send(res, 200, { category, count: opportunities.length, opportunities, model: getModelVersionMetadata() });
+  }
+  if (pathname === '/api/orbit/opportunities' && req.method === 'POST') {
+    const parsed = await requestBody(req);
+    if (!parsed.ok) return orbitError(res, 400, parsed.error.code, parsed.error.message, parsed.error.fields);
+    const input = parsed.value;
+    const validation = validateOpportunity(input);
+    if (!validation.ok) return orbitError(res, 400, validation.error.code, validation.error.message, validation.error.fields);
+    const now = new Date().toISOString();
+    const id = typeof input.id === 'string' && input.id.trim() && !state.projects.some((item) => item.id === input.id.trim())
+      ? input.id.trim().slice(0, 160)
+      : `opportunity-${randomUUID()}`;
+    const owner = input.owner || { id: 'local-user', name: state.user?.name || 'Local collaborator' };
+    const created = {
+      ...input,
+      ...validation.value,
+      id,
+      owner,
+      createdBy: 'local-user',
+      createdAt: now,
+      updatedAt: now,
+      provenance: {
+        ...validation.value.provenance,
+        provider: 'local-user',
+        sourceId: id,
+        observedAt: now
+      },
+      reciprocal: false,
+      signal: 'community-created opportunity'
+    };
+    state.projects.unshift(created);
+    orbitActivity(state, `Added ${created.title}`, 'Available for collaboration in the local Orbit catalog', 'created');
+    await saveRallyState(state);
+    return send(res, 201, { opportunity: orbitOpportunity(created) });
+  }
   if (pathname === '/api/orbit/profile' && req.method === 'PATCH') {
-    const input = await body(req);
+    const parsed = await requestBody(req);
+    if (!parsed.ok) return orbitError(res, 400, parsed.error.code, parsed.error.message, parsed.error.fields);
+    const input = parsed.value;
     const candidate = { ...state.user, ...input };
     const validation = validateProfile(candidate);
-    if (!validation.ok) return send(res, 400, validation.error);
+    if (!validation.ok) return orbitError(res, 400, validation.error.code, validation.error.message, validation.error.fields);
     state.user = { ...state.user, ...candidate, ...validation.value, skills: validation.value.skills, interests: validation.value.interests, goals: validation.value.goals };
     orbitActivity(state, 'Profile context updated', 'Orbit will use the new declared context on the next ranking pass', 'profile');
     await saveRallyState(state); return send(res, 200, { profile: orbitProfile(state) });
   }
   if (pathname === '/api/orbit/swipe' && req.method === 'POST') {
-    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
-    if (!project || !['like', 'pass', 'save'].includes(input.decision)) return send(res, 400, { error: 'Choose a valid opportunity and decision.' });
+    const parsed = await requestBody(req);
+    if (!parsed.ok) return orbitError(res, 400, parsed.error.code, parsed.error.message, parsed.error.fields);
+    const input = parsed.value; const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project || !['like', 'pass', 'save'].includes(input.decision)) return orbitError(res, 400, 'INVALID_SWIPE', 'Choose a valid opportunity and decision.', [{ field: 'projectId' }, { field: 'decision' }]);
     state.swipes = state.swipes.filter((item) => item.projectId !== project.id);
     state.swipes.push({ projectId: project.id, decision: input.decision, createdAt: new Date().toISOString() });
     if (input.decision === 'save' && !state.saved.includes(project.id)) state.saved.unshift(project.id);
@@ -361,30 +457,52 @@ async function handleOrbitApi(req, res, pathname) {
   const analysisMatch = pathname.match(/^\/api\/orbit\/opportunities\/([^/]+)\/analyze$/);
   if (analysisMatch && req.method === 'POST') {
     const project = state.projects.find((item) => item.id === analysisMatch[1]);
-    if (!project) return send(res, 404, { error: 'Opportunity not found.' });
+    if (!project) return orbitError(res, 404, 'OPPORTUNITY_NOT_FOUND', 'Opportunity not found.');
     const opportunity = orbitOpportunity(project); const fit = explainFit(opportunity, profile, { asOf: new Date().toISOString() });
+    const summary = summarizeOpportunity(opportunity, fit);
     const mutualInterest = state.matches.some((item) => item.projectId === project.id);
     const nextActions = planNextActions(opportunity, profile, fit, { mutualInterest });
-    const run = { id: randomUUID(), type: 'opportunity-analysis', opportunityId: project.id, fit, nextActions, createdAt: new Date().toISOString(), model: 'orbit-transparent-agent-v1', illustrative: false };
+    const run = { id: randomUUID(), type: 'opportunity-analysis', opportunityId: project.id, summary, fit, nextActions, createdAt: new Date().toISOString(), model: 'orbit-transparent-agent-v1', provider: 'local', offlineSafe: true, illustrative: false };
     state.agentRuns.unshift(run); orbitActivity(state, `Orbit Lens analyzed ${project.title}`, `${fit.score}% fit from declared evidence`, 'agent'); await saveRallyState(state); return send(res, 200, run);
   }
+  const summaryMatch = pathname.match(/^\/api\/orbit\/opportunities\/([^/]+)\/summary$/);
+  if (summaryMatch && (req.method === 'GET' || req.method === 'POST')) {
+    const project = state.projects.find((item) => item.id === summaryMatch[1]);
+    if (!project) return orbitError(res, 404, 'OPPORTUNITY_NOT_FOUND', 'Opportunity not found.');
+    const opportunity = orbitOpportunity(project);
+    const fit = explainFit(opportunity, profile, { asOf: new Date().toISOString() });
+    return send(res, 200, { summary: summarizeOpportunity(opportunity, fit), fit });
+  }
   if (pathname === '/api/orbit/remix' && req.method === 'POST') {
-    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
-    if (!project) return send(res, 404, { error: 'Opportunity not found.' });
+    const parsed = await requestBody(req);
+    if (!parsed.ok) return orbitError(res, 400, parsed.error.code, parsed.error.message, parsed.error.fields);
+    const input = parsed.value; const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project) return orbitError(res, 404, 'OPPORTUNITY_NOT_FOUND', 'Opportunity not found.');
     const remix = createOrbitRemixPlan(orbitOpportunity(project), profile, { id: randomUUID() }); state.remixes.unshift(remix); orbitActivity(state, `Remix drafted: ${project.title}`, 'Separate plan created. Source opportunity unchanged.', 'remix'); await saveRallyState(state); return send(res, 201, { remix });
   }
   if (pathname === '/api/orbit/introduction' && req.method === 'POST') {
-    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
-    if (!project) return send(res, 404, { error: 'Opportunity not found.' });
+    const parsed = await requestBody(req);
+    if (!parsed.ok) return orbitError(res, 400, parsed.error.code, parsed.error.message, parsed.error.fields);
+    const input = parsed.value; const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project) return orbitError(res, 404, 'OPPORTUNITY_NOT_FOUND', 'Opportunity not found.');
     const opportunity = orbitOpportunity(project); const fit = explainFit(opportunity, profile, { asOf: new Date().toISOString() }); const draft = createOrbitIntroductionDraft(opportunity, fit, profile); state.agentRuns.unshift({ id: randomUUID(), type: 'introduction-draft', opportunityId: project.id, draft, createdAt: new Date().toISOString() }); await saveRallyState(state); return send(res, 200, { draft });
   }
   if (pathname === '/api/orbit/evaluation' && req.method === 'POST') {
-    const input = await body(req); const report = createEvaluationReport({ cases: input.cases || [{ id: 'demo', user: state.user, opportunities: state.projects, relevance: input.relevance || {} }], k: input.k || 5, referenceDate: input.referenceDate || new Date().toISOString() }); return send(res, 200, report);
+    const parsed = await requestBody(req);
+    if (!parsed.ok) return orbitError(res, 400, parsed.error.code, parsed.error.message, parsed.error.fields);
+    const input = parsed.value;
+    if (input.cases !== undefined && !Array.isArray(input.cases)) return orbitError(res, 400, 'INVALID_EVALUATION', 'cases must be an array.', [{ field: 'cases' }]);
+    if (input.k !== undefined && (!Number.isInteger(input.k) || input.k < 0)) return orbitError(res, 400, 'INVALID_EVALUATION', 'k must be a non-negative integer.', [{ field: 'k' }]);
+    const report = createEvaluationReport({ cases: input.cases || [{ id: 'demo', user: state.user, opportunities: state.projects, relevance: input.relevance || {} }], k: input.k ?? 5, referenceDate: input.referenceDate || new Date().toISOString() }); return send(res, 200, report);
   }
   if (pathname === '/api/orbit/feedback' && req.method === 'POST') {
-    const input = await body(req); if (!input.projectId || !['like', 'pass', 'save', 'open', 'source-click'].includes(input.signal)) return send(res, 400, { error: 'projectId and a supported signal are required.' }); state.feedbackEvents.unshift({ id: randomUUID(), ...input, createdAt: new Date().toISOString() }); await saveRallyState(state); return send(res, 201, state.feedbackEvents[0]);
+    const parsed = await requestBody(req);
+    if (!parsed.ok) return orbitError(res, 400, parsed.error.code, parsed.error.message, parsed.error.fields);
+    const input = parsed.value;
+    if (!input.projectId || !state.projects.some((item) => item.id === input.projectId) || !['like', 'pass', 'save', 'open', 'source-click'].includes(input.signal)) return orbitError(res, 400, 'INVALID_FEEDBACK', 'projectId must reference an opportunity and signal must be supported.', [{ field: 'projectId' }, { field: 'signal' }]);
+    state.feedbackEvents.unshift({ id: randomUUID(), ...input, createdAt: new Date().toISOString() }); await saveRallyState(state); return send(res, 201, state.feedbackEvents[0]);
   }
-  return send(res, 404, { error: 'Orbit route not found.' });
+  return orbitError(res, 404, 'ORBIT_ROUTE_NOT_FOUND', 'Orbit route not found.');
 }
 
 async function handleRallyApi(req, res, pathname) {

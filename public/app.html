@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0c1118" />
-    <title>Orbit · Application</title>
+    <meta name="theme-color" content="#08090c" />
+    <title>Orbit · Opportunity discovery</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -13,16 +13,83 @@
     <link rel="stylesheet" href="/app-premium.css" />
   </head>
   <body>
-    <div class="app-noise"></div>
-    <header class="app-topbar"><a class="app-brand" href="/"><span class="app-mark"><i></i><i></i><i></i></span><strong>orbit<span>.</span></strong></a><div class="app-breadcrumb"><span>Orbit</span><i>/</i><b id="screen-label">Discover</b></div><div class="app-actions"><button class="command-key">⌘ K</button><button class="icon-button" id="profile-menu" aria-label="Profile">AM</button><a class="return-link" href="/">Preview ↗</a></div></header>
-    <main class="app-main">
-      <section class="app-screen active" id="discover-screen"><div class="app-heading"><div><span class="eyebrow"><i></i> Your next signal</span><h1>What pulls you<br /><em>in today?</em></h1><p>One opportunity at a time. Use the card, not the noise.</p></div><div class="orbit-count"><b id="opportunity-count">06</b><span>opportunities<br />in your orbit</span></div></div><div class="discover-grid"><div class="deck-stage"><div class="corner-lens lens-left" data-lens-target><span>✦</span><small>lens</small></div><div class="corner-lens lens-right" data-lens-target><span>✦</span><small>lens</small></div><div class="deck-stack" id="deck-stack"><article class="project-card behind-card"></article><article class="project-card main-card" id="project-card" draggable="true"><div class="project-art" id="project-art"><span class="art-kicker" id="project-kicker">PROJECT · PROTOTYPE</span><span class="art-stage" id="project-stage">OPEN SOURCE</span><div class="art-orbit"></div></div><div class="project-content"><div class="project-meta"><span id="project-signal">SHARED PURPOSE</span><span id="project-owner">Maya Rao</span></div><h2 id="project-title">Campus Pantry</h2><p id="project-summary">A dignity-first logistics layer for students who need food support without another form maze.</p><div class="project-tags" id="project-tags"></div><div class="project-card-footer"><span id="project-commitment">4–6 hrs / week</span><span>drag to Orbit Lens ↗</span></div></div></article></div><div class="swipe-actions"><button class="swipe-control pass" id="pass-button" aria-label="Pass">×</button><button class="swipe-control save" id="save-button" aria-label="Save">♡</button><button class="swipe-control like" id="like-button" aria-label="Like">✦</button></div><div class="swipe-hint"><span>← pass</span><span>space save</span><span>→ like</span></div></div><aside class="lens-panel"><div class="lens-panel-head"><span class="eyebrow">Orbit Lens</span><span class="agent-state"><i></i><span id="agent-state">ready</span></span></div><div class="lens-object" id="lens-object" data-lens-target><div class="lens-core"><span>✦</span><small>lens</small></div><i></i><i></i></div><div class="lens-copy" id="lens-copy"><h3>Bring a project closer.</h3><p>Orbit Lens reads declared context, explains the fit, and proposes one safe next move.</p><button class="lens-button" id="analyze-button">Analyze this opportunity <span>↗</span></button></div><div class="analysis-result hidden" id="analysis-result"></div><div class="lens-foot"><span>transparent baseline</span><span>drafts only</span></div></aside></div></section>
-      <section class="app-screen" id="matches-screen"><div class="secondary-heading"><span class="eyebrow"><i></i> Mutual interest</span><h1>Projects that<br /><em>answered.</em></h1><p>A match is a shared “let’s see.” Nothing more, nothing less.</p></div><div class="collection-grid" id="matches-grid"></div></section>
-      <section class="app-screen" id="saved-screen"><div class="secondary-heading"><span class="eyebrow"><i></i> Shortlist</span><h1>Keep the<br /><em>maybe.</em></h1><p>Your saved opportunities, waiting for a clearer moment.</p></div><div class="collection-grid" id="saved-grid"></div></section>
-      <section class="app-screen" id="remixes-screen"><div class="secondary-heading"><span class="eyebrow"><i></i> Agent drafts</span><h1>Ideas worth<br /><em>making yours.</em></h1><p>Every remix is separate from the source opportunity.</p></div><div class="remix-list" id="remix-list"></div></section>
-      <section class="app-screen" id="profile-screen"><div class="secondary-heading"><span class="eyebrow"><i></i> Declared context</span><h1>Make the signal<br /><em>more useful.</em></h1><p>Orbit uses what you declare. Nothing is inferred silently from your identity.</p></div><form class="profile-form" id="profile-form"><label>Display name<input id="profile-name" name="name" /></label><label>Interests<input id="profile-interests" name="interests" placeholder="education, climate, creative tools" /></label><label>Skills<input id="profile-skills" name="skills" placeholder="react, ai evaluation, product design" /></label><label>Availability<input id="profile-availability" name="availability" placeholder="weekends · 4–6 hrs / week" /></label><button class="save-profile" type="submit">Save profile context <span>↗</span></button></form></section>
-    </main>
-    <nav class="bottom-nav" aria-label="Orbit application navigation"><button class="active" data-screen="discover"><i>✦</i><span>Discover</span></button><button data-screen="matches"><i>◈</i><span>Matches</span><b id="nav-match-count">0</b></button><button data-screen="saved"><i>♡</i><span>Saved</span></button><button data-screen="remixes"><i>↗</i><span>Remixes</span></button><button data-screen="profile"><i>◌</i><span>Profile</span></button></nav>
+    <div class="app-noise" aria-hidden="true"></div>
+    <aside class="app-sidebar" aria-label="Primary navigation">
+      <a class="app-brand" href="/" aria-label="Orbit home"><span class="app-mark"><i></i><i></i><i></i></span><strong>orbit<span>.</span></strong></a>
+      <div class="sidebar-label">Your field</div>
+      <nav class="side-nav" aria-label="Opportunity sections">
+        <button class="active" data-screen="discover"><i>✦</i><span>Discover</span><b class="nav-count" id="sidebar-discover-count">06</b></button>
+        <button data-screen="research"><i>◌</i><span>Research papers</span></button>
+        <button data-screen="projects"><i>◈</i><span>Projects</span></button>
+        <button data-screen="opensource"><i>⌘</i><span>Open source</span></button>
+      </nav>
+      <div class="sidebar-label sidebar-label-secondary">Your orbit</div>
+      <nav class="side-nav side-nav-secondary" aria-label="Personal sections">
+        <button data-screen="saved"><i>♡</i><span>Saved</span><b class="nav-count" id="sidebar-saved-count">0</b></button>
+        <button data-screen="matches"><i>◎</i><span>Matches</span><b class="nav-count" id="nav-match-count">0</b></button>
+        <button data-screen="profile"><i>◌</i><span>Profile context</span></button>
+      </nav>
+      <button class="add-opportunity-button" id="add-opportunity-button" type="button"><span>＋</span><div><strong>Add an opportunity</strong><small>Start a collaboration</small></div><b>↗</b></button>
+      <div class="sidebar-bottom"><div class="sidebar-status"><i></i><span>Local signal engine<br /><b>online</b></span></div><a href="/" class="sidebar-preview">Back to preview <span>↗</span></a></div>
+    </aside>
+
+    <div class="app-shell">
+      <header class="app-topbar">
+        <div class="app-breadcrumb"><span>Orbit</span><i>/</i><b id="screen-label">Discover</b></div>
+        <label class="app-search"><span aria-hidden="true">⌕</span><input id="opportunity-search" type="search" placeholder="Search your opportunity field" autocomplete="off" /><kbd>⌘ K</kbd></label>
+        <div class="app-actions"><button class="command-key" id="command-button" aria-label="Focus search">⌘ K</button><button class="icon-button" id="profile-menu" aria-label="Open profile">AM</button></div>
+      </header>
+
+      <main class="app-main">
+        <section class="app-screen active" id="discover-screen" aria-labelledby="discover-title">
+          <div class="app-heading"><div><span class="eyebrow"><i></i> Your next signal</span><h1 id="discover-title">What pulls you<br /><em>in today?</em></h1><p>One opportunity at a time. Keep what sparks, release what does not.</p></div><div class="orbit-count"><b id="opportunity-count">06</b><span>signals<br />in your field</span></div></div>
+          <div class="discover-toolbar"><div><span class="toolbar-label">Curated for you</span><span class="toolbar-muted" id="search-status">All signals · ranked by declared context</span></div><button class="filter-button" id="clear-search" type="button" hidden>Clear search <span>×</span></button></div>
+          <div class="discover-grid">
+            <div class="deck-stage" id="deck-stage">
+              <div class="corner-lens lens-left" data-lens-target tabindex="0" role="button" aria-label="Analyze current opportunity with Orbit Lens"><span>✦</span><small>lens</small></div>
+              <div class="corner-lens lens-right" data-lens-target tabindex="0" role="button" aria-label="Analyze current opportunity with Orbit Lens"><span>✦</span><small>lens</small></div>
+              <div class="deck-stack" id="deck-stack">
+                <article class="project-card behind-card" aria-hidden="true"><div class="project-art"></div></article>
+                <article class="project-card second-card" aria-hidden="true"><div class="project-art"></div></article>
+                <article class="project-card main-card" id="project-card">
+                  <div class="project-art" id="project-art"><span class="art-kicker" id="project-kicker">PROJECT · PROTOTYPE</span><span class="art-stage" id="project-stage">OPEN SOURCE</span><div class="art-orbit"></div><span class="art-cross art-cross-a"></span><span class="art-cross art-cross-b"></span></div>
+                  <div class="project-content"><div class="project-meta"><span id="project-signal">SHARED PURPOSE</span><span id="project-owner">Maya Rao</span></div><h2 id="project-title">Campus Pantry</h2><p id="project-summary">A dignity-first logistics layer for students who need food support without another form maze.</p><div class="project-tags" id="project-tags"></div><div class="project-card-footer"><span id="project-commitment">4–6 hrs / week</span><span class="drag-label">drag card to analyze <b>↗</b></span></div></div>
+                </article>
+              </div>
+              <div class="swipe-actions" aria-label="Opportunity actions"><button class="swipe-control dismiss" id="pass-button" type="button" aria-label="Dismiss opportunity"><span>×</span><small>dismiss</small></button><button class="swipe-control maybe" id="maybe-button" type="button" aria-label="Mark opportunity maybe"><span>?</span><small>maybe</small></button><button class="swipe-control save" id="save-button" type="button" aria-label="Save opportunity"><span>♡</span><small>save</small></button><button class="swipe-control super-like" id="like-button" type="button" aria-label="Super like opportunity"><span>✦</span><small>super-like</small></button></div>
+              <div class="swipe-hint"><span>← dismiss</span><span>drag to explore</span><span>super-like →</span></div>
+            </div>
+            <aside class="lens-panel" aria-labelledby="lens-title"><div class="lens-panel-head"><div><span class="eyebrow">Orbit Lens</span><h2 id="lens-title">Make the<br /><em>pull legible.</em></h2></div><span class="agent-state"><i></i><span id="agent-state">ready</span></span></div><div class="lens-copy" id="lens-copy"><span class="lens-glyph">✦</span><strong>Context, not a verdict.</strong><p>Bring a project closer to reveal the overlap, the gap, and one useful next action.</p><button id="analyze-button" type="button">Analyze this signal <span>↗</span></button></div><div class="analysis-result hidden" id="analysis-result"></div><div class="lens-panel-footer"><span>transparent ranking</span><span>local · private</span></div></aside>
+          </div>
+        </section>
+
+        <section class="app-screen category-screen" id="research-screen" aria-labelledby="research-title"><div class="secondary-heading"><div><span class="eyebrow"><i></i> Knowledge in motion</span><h1 id="research-title">Research<br /><em>papers.</em></h1><p>Turn a paper into a path you can actually enter.</p></div><span class="section-index">01 / 03</span></div><div class="category-grid" id="research-grid"></div></section>
+        <section class="app-screen category-screen" id="projects-screen" aria-labelledby="projects-title"><div class="secondary-heading"><div><span class="eyebrow"><i></i> Open invitations</span><h1 id="projects-title">Projects<br /><em>with a pull.</em></h1><p>Find people and ideas that need your particular way of thinking.</p></div><span class="section-index">02 / 03</span></div><div class="category-grid" id="projects-grid"></div></section>
+        <section class="app-screen category-screen" id="opensource-screen" aria-labelledby="opensource-title"><div class="secondary-heading"><div><span class="eyebrow"><i></i> Shared infrastructure</span><h1 id="opensource-title">Open<br /><em>source.</em></h1><p>See where a small contribution can become a real signal.</p></div><span class="section-index">03 / 03</span></div><div class="category-grid" id="opensource-grid"></div></section>
+
+        <section class="app-screen" id="matches-screen"><div class="secondary-heading"><div><span class="eyebrow"><i></i> Mutual interest</span><h1>Projects that<br /><em>answered.</em></h1><p>A match is a shared “let’s see.” Nothing more, nothing less.</p></div></div><div class="collection-grid" id="matches-grid"></div></section>
+        <section class="app-screen" id="saved-screen"><div class="secondary-heading"><div><span class="eyebrow"><i></i> Shortlist</span><h1>Keep the<br /><em>maybe.</em></h1><p>Your saved opportunities, waiting for a clearer moment.</p></div></div><div class="collection-grid" id="saved-grid"></div></section>
+        <section class="app-screen" id="remixes-screen"><div class="secondary-heading"><div><span class="eyebrow"><i></i> Agent drafts</span><h1>Ideas worth<br /><em>making yours.</em></h1><p>Every remix is separate from the source opportunity.</p></div></div><div class="remix-list" id="remix-list"></div></section>
+        <section class="app-screen" id="profile-screen"><div class="secondary-heading"><div><span class="eyebrow"><i></i> Declared context</span><h1>Make the signal<br /><em>more useful.</em></h1><p>Orbit uses what you declare. Nothing is inferred silently from your identity.</p></div></div><form class="profile-form" id="profile-form"><label>Display name<input id="profile-name" name="name" /></label><label>Interests<input id="profile-interests" name="interests" placeholder="education, climate, creative tools" /></label><label>Skills<input id="profile-skills" name="skills" placeholder="react, ai evaluation, product design" /></label><label>Availability<input id="profile-availability" name="availability" placeholder="weekends · 4–6 hrs / week" /></label><button class="save-profile" type="submit">Save profile context <span>↗</span></button></form></section>
+      </main>
+    </div>
+
+    <div class="composer-overlay hidden" id="composer-overlay" aria-hidden="true">
+      <section class="composer" role="dialog" aria-modal="true" aria-labelledby="composer-title">
+        <div class="composer-head"><div><span class="eyebrow"><i></i> Community signal</span><h2 id="composer-title">Add something<br /><em>worth finding.</em></h2></div><button class="composer-close" id="composer-close" type="button" aria-label="Close opportunity form">×</button></div>
+        <p class="composer-intro">Share a project, research paper, or open-source idea. Orbit will summarize it locally and make it discoverable for collaboration.</p>
+        <form class="composer-form" id="opportunity-form">
+          <label>Title<input name="title" required maxlength="160" placeholder="e.g. Open-source AI research assistant" /></label>
+          <label>Category<select name="category"><option value="research-papers">Research paper</option><option value="projects" selected>Project</option><option value="open-source">Open source</option></select></label>
+          <label>What is it?<textarea name="summary" required maxlength="1200" rows="4" placeholder="Describe the idea, the problem, and who it is for."></textarea></label>
+          <div class="composer-two-up"><label>Tags<input name="tags" placeholder="AI, research, Python" /></label><label>Skills needed<input name="skills" placeholder="RAG, frontend, evaluation" /></label></div>
+          <div class="composer-two-up"><label>Collaboration need<input name="needs" placeholder="research partner, designer" /></label><label>Commitment<input name="commitment" placeholder="2 hrs / week" /></label></div>
+          <div class="composer-actions"><button class="composer-cancel" id="composer-cancel" type="button">Cancel</button><button class="composer-submit" type="submit">Add to Orbit <span>↗</span></button></div>
+        </form>
+      </section>
+    </div>
+
+    <nav class="bottom-nav" id="mobile-bottom-nav" aria-label="Orbit application navigation"><button class="active" data-screen="discover"><i>✦</i><span>Discover</span></button><button data-screen="research"><i>◌</i><span>Research</span></button><button data-screen="projects"><i>◈</i><span>Projects</span></button><button data-screen="opensource"><i>⌘</i><span>Open source</span></button><button data-screen="saved"><i>♡</i><span>Saved</span></button></nav>
     <div class="toast-region" id="toast-region" aria-live="polite"></div>
     <script type="module" src="/app-shell.js"></script>
   </body>
