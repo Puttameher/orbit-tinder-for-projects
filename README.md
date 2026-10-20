@@ -8,7 +8,7 @@ Orbit is an AI-powered opportunity discovery platform for projects, research, op
 http://localhost:4173
 ```
 
-The default route is the public preview. Compare three distinct visual directions, activate Orbit Lens, inspect the sample opportunity analysis, preview the dashboard, then explicitly approve a direction.
+The default route is the public preview. **Intelligent Artifact (B)** is now the default direction. Compare all three directions, activate Orbit Lens, inspect the sample opportunity analysis, preview the dark application surface, then explicitly approve a direction.
 
 ## Preview flow
 
@@ -17,6 +17,8 @@ The default route is the public preview. Compare three distinct visual direction
 3. Drag the opportunity card into Orbit Lens or press **Analyze with Lens**.
 4. Inspect the sample analysis and dashboard preview.
 5. Choose a direction, select elements to keep, and submit the explicit approval.
+
+The dashboard preview now demonstrates the requested product surface: a dark glassmorphism application, Tinder-like center card, bottom glass navigation, two corner Orbit Lens instruments, a draggable project, and a procedural AI visual study in place of a static photo. The visual study is clearly labeled illustrative, not a live generated video model.
 
 ## Run locally
 

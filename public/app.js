@@ -1,5 +1,5 @@
 const preview = {
-  direction: localStorage.getItem('orbit-preview-direction') || 'a',
+  direction: localStorage.getItem('orbit-preview-direction-v2') || 'b',
   lensState: 'idle',
   approved: JSON.parse(localStorage.getItem('orbit-preview-state') || 'null'),
   dragSource: null
@@ -37,7 +37,7 @@ function toast(message) {
 function scrollToTarget(id) { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
 function setDirection(direction, announce = true) {
-  preview.direction = direction; localStorage.setItem('orbit-preview-direction', direction); document.body.className = `direction-${direction}`;
+  preview.direction = direction; localStorage.setItem('orbit-preview-direction-v2', direction); document.body.className = `direction-${direction}`;
   $$('.direction-tab').forEach((tab) => tab.classList.toggle('active', tab.dataset.direction === direction));
   const data = directionData[direction]; $('#direction-eyebrow').textContent = data.eyebrow; $('#direction-title').innerHTML = data.title; $('#direction-description').textContent = data.description;
   $('#direction-swatches').innerHTML = data.swatches.map((color) => `<i style="background:${color}"></i>`).join(''); $('#approval-direction').value = direction;
@@ -60,9 +60,28 @@ function runAnalysis(source = 'button') {
 }
 
 function setupDrag() {
-  const card = $('#opportunity-card'); const heroCard = $('#hero-project'); const targets = $$('[data-lens]');
-  [card, heroCard].forEach((source) => { source.addEventListener('dragstart', (event) => { preview.dragSource = source; source.classList.add('dragging'); event.dataTransfer.effectAllowed = 'move'; }); source.addEventListener('dragend', () => source.classList.remove('dragging')); });
+  const card = $('#opportunity-card'); const heroCard = $('#hero-project'); const appCard = $('#app-deck-card'); const targets = $$('[data-lens]');
+  [card, heroCard, appCard].filter(Boolean).forEach((source) => { source.addEventListener('dragstart', (event) => { preview.dragSource = source; source.classList.add('dragging'); event.dataTransfer.effectAllowed = 'move'; }); source.addEventListener('dragend', () => source.classList.remove('dragging')); });
   targets.forEach((target) => { target.addEventListener('dragover', (event) => { event.preventDefault(); target.classList.add('active'); }); target.addEventListener('dragleave', () => target.classList.remove('active')); target.addEventListener('drop', (event) => { event.preventDefault(); target.classList.remove('active'); runAnalysis('drag'); }); });
+}
+
+function initMotionStudy() {
+  const canvas = $('#dash-video'); if (!canvas) return;
+  const context = canvas.getContext('2d'); let frame = 0;
+  const resize = () => { const rect = canvas.getBoundingClientRect(); const ratio = window.devicePixelRatio || 1; canvas.width = Math.max(1, rect.width * ratio); canvas.height = Math.max(1, rect.height * ratio); context.setTransform(ratio, 0, 0, ratio, 0, 0); };
+  const draw = () => { const width = canvas.clientWidth; const height = canvas.clientHeight; if (!width || !height) return; frame += 0.012; context.clearRect(0, 0, width, height); const gradient = context.createLinearGradient(0, 0, width, height); gradient.addColorStop(0, '#171b36'); gradient.addColorStop(.5, '#3a4fe3'); gradient.addColorStop(1, '#ce7656'); context.fillStyle = gradient; context.fillRect(0, 0, width, height); for (let index = 0; index < 8; index += 1) { const x = width * (.18 + index * .11) + Math.sin(frame * 2 + index) * 25; const y = height * (.55 + Math.cos(frame * 1.4 + index * .7) * .24); const radius = 28 + Math.sin(frame * 2.5 + index) * 8; const bubble = context.createRadialGradient(x - radius * .25, y - radius * .25, 2, x, y, radius); bubble.addColorStop(0, 'rgba(238,249,255,.95)'); bubble.addColorStop(.42, 'rgba(180,223,255,.32)'); bubble.addColorStop(1, 'rgba(180,223,255,0)'); context.fillStyle = bubble; context.beginPath(); context.ellipse(x, y, radius * 1.45, radius * .7, Math.sin(index + frame) * .3, 0, Math.PI * 2); context.fill(); } context.strokeStyle = 'rgba(255,255,255,.4)'; context.lineWidth = 1; context.beginPath(); context.arc(width * .66, height * .36, 46 + Math.sin(frame) * 6, frame, frame + Math.PI * 1.5); context.stroke(); window.requestAnimationFrame(draw); };
+  resize(); window.addEventListener('resize', resize); draw();
+}
+
+function bindAppDeck() {
+  const card = $('#app-deck-card'); if (!card) return;
+  const swipe = (direction) => { card.classList.remove('app-swipe-left', 'app-swipe-right', 'app-saved'); if (direction === 'save') card.classList.add('app-saved'); else card.classList.add(direction === 'left' ? 'app-swipe-left' : 'app-swipe-right'); window.setTimeout(() => { card.classList.remove('app-swipe-left', 'app-swipe-right', 'app-saved'); }, 620); };
+  $('#app-pass')?.addEventListener('click', () => swipe('left')); $('#app-save')?.addEventListener('click', () => swipe('save')); $('#app-like')?.addEventListener('click', () => { swipe('right'); toast('Illustrative match signal sent.'); });
+}
+
+function bindScrollMotion() {
+  const sections = $$('main > section'); sections.forEach((section) => section.classList.add('reveal-section')); if (!('IntersectionObserver' in window)) { sections.forEach((section) => section.classList.add('is-visible')); return; }
+  const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } }), { threshold: .12 }); sections.forEach((section) => observer.observe(section));
 }
 
 function saveApproval(event) {
@@ -80,7 +99,7 @@ function bind() {
   $('#approval-direction').addEventListener('change', (event) => setDirection(event.target.value, false));
   $('#analyze-button').addEventListener('click', () => runAnalysis()); $('#lens-dock').addEventListener('click', () => runAnalysis('tap'));
   $('#hero-project').addEventListener('click', () => { scrollToTarget('lens'); window.setTimeout(() => runAnalysis('tap'), 500); });
-  $('#approval-form').addEventListener('submit', saveApproval); setupDrag(); restoreApproval(); setDirection(preview.direction, false);
+  $('#approval-form').addEventListener('submit', saveApproval); setupDrag(); bindAppDeck(); bindScrollMotion(); initMotionStudy(); restoreApproval(); setDirection(preview.direction, false);
   $('#menu-button').addEventListener('click', () => { $('.nav-links').classList.toggle('open'); $('.nav-links').classList.toggle('mobile-open'); });
 }
 

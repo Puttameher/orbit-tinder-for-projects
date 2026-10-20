@@ -24,9 +24,11 @@ The approval state is stored in `localStorage` under `orbit-preview-state`. The 
 
 Night observatory, acid lime signal, coral counterpoint, soft dimensional orb. Motion is radial and instrument-like.
 
-### B. Intelligent Artifact
+### B. Intelligent Artifact (selected default)
 
 Paper, cobalt, and copper. Orbit Lens becomes a precise geometric artifact with a folded-plane analysis state. Motion is measured, angular, and editorial.
+
+The main application surface uses a darker artifact mode: a deep blue-black canvas, restrained glass navigation dock, a Tinder-like centered opportunity deck, two corner Lens instruments, and a procedural motion study in place of a static dashboard image.
 
 ### C. Organic Digital Companion
 
@@ -51,3 +53,7 @@ Plum, seafoam, and apricot. Orbit Lens becomes a restrained fluid organism with 
 - Agents may draft, but cannot apply, publish, contact, or change profile data without approval.
 - CV and profile data need explicit ownership, deletion, retention, and access controls.
 - Opportunity sources must respect API terms, quotas, robots policies, and provenance.
+
+## Visual study boundary
+
+The current dashboard “AI visual study” is a procedural canvas animation. It is intentionally labeled as generated/illustrative in the preview and does not claim to be a live video-generation model. After approval, it can be replaced by a provider-backed generation job with asset provenance and retryable background processing.
