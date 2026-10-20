@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import { extractReminder, buildSkillEvidence, mcpTools } from './lib/agent.js';
+import { extractReminderWithProvider, buildSkillEvidence, mcpTools } from './lib/agent.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
@@ -80,10 +80,10 @@ async function handleApi(req, res, pathname) {
     const input = await body(req);
     const thread = state.threads.find((item) => item.id === input.threadId);
     if (!thread) return send(res, 404, { error: 'Thread not found' });
-    const proposal = extractReminder(thread);
+    const proposal = await extractReminderWithProvider(thread);
     audit(state, 'extract', 'thread', thread.id, { confidence: proposal.confidence });
     await saveState(state);
-    return send(res, 200, { proposal, mode: process.env.AI_PROVIDER === 'remote' ? 'remote-ready' : 'local-pipeline' });
+    return send(res, 200, { proposal, mode: proposal.provider || 'local-pipeline' });
   }
   if (pathname === '/api/reminders' && req.method === 'POST') {
     const input = await body(req);

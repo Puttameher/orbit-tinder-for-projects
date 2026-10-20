@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { extractReminder, buildSkillEvidence, mcpTools } from '../lib/agent.js';
+import { extractReminder, extractReminderWithProvider, buildSkillEvidence, mcpTools } from '../lib/agent.js';
 
 test('extracts a dated commitment with provenance', () => {
   const result = extractReminder({
@@ -34,4 +34,16 @@ test('MCP surface is allowlisted and writes are visibly scoped', () => {
   ]);
   assert.equal(mcpTools.find((tool) => tool.name === 'complete_reminder').readOnly, false);
   assert.ok(mcpTools.every((tool) => tool.description && !tool.description.includes('SQL')));
+});
+
+test('provider pipeline stays usable without credentials', async () => {
+  const previousProvider = process.env.AI_PROVIDER;
+  const previousKey = process.env.OPENAI_API_KEY;
+  delete process.env.AI_PROVIDER;
+  delete process.env.OPENAI_API_KEY;
+  const result = await extractReminderWithProvider({ id: 'offline', body: 'Please submit the form by Friday.' });
+  assert.equal(result.provider, 'local-pipeline');
+  assert.match(result.title, /submit the form/i);
+  if (previousProvider === undefined) delete process.env.AI_PROVIDER; else process.env.AI_PROVIDER = previousProvider;
+  if (previousKey === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = previousKey;
 });

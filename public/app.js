@@ -2,7 +2,8 @@ const app = {
   state: null,
   selectedThreadId: null,
   proposal: null,
-  reminderFilter: 'all'
+  reminderFilter: 'all',
+  notifiedReminders: new Set()
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -28,6 +29,18 @@ function toast(message, tone = 'success') {
   if (tone !== 'error' && app.state?.profile?.notifications && 'Notification' in window && Notification.permission === 'granted') {
     new Notification('TraceForm', { body: message });
   }
+}
+
+function checkDueReminders() {
+  if (!app.state || !app.state.profile.notifications || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const now = Date.now();
+  app.state.reminders.filter((item) => item.status === 'upcoming' && item.dueAt).forEach((item) => {
+    const due = new Date(item.dueAt).getTime();
+    if (due > now && due - now < 24 * 60 * 60 * 1000 && !app.notifiedReminders.has(item.id)) {
+      app.notifiedReminders.add(item.id);
+      new Notification('TraceForm reminder', { body: `${item.title} · ${shortDate(item.dueAt)}` });
+    }
+  });
 }
 
 function setView(view) {
@@ -158,6 +171,7 @@ async function refresh() {
   renderOverview(); renderInbox(); renderReminders(); renderNotes(); renderSkills(); renderAudit();
   $('#connect-label').textContent = app.state.connection.connected ? 'Gmail connected' : 'Connect Gmail';
   $('#connect-button').classList.toggle('is-connected', app.state.connection.connected);
+  checkDueReminders();
 }
 
 async function connectGmail() {
@@ -189,3 +203,4 @@ function bind() {
 
 async function init() { bind(); try { await refresh(); } catch (error) { toast(error.message, 'error'); } }
 init();
+window.setInterval(checkDueReminders, 60_000);

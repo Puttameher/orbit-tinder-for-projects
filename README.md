@@ -23,7 +23,7 @@ npm start
 
 Open <http://localhost:4173>.
 
-The demo is self-contained and works without a network connection or API key. To use an OpenAI-compatible extraction provider, copy `.env.example` to `.env`, set `AI_PROVIDER=remote`, `OPENAI_API_KEY`, and optionally `AI_BASE_URL` and `AI_MODEL`. Email content is treated as untrusted input and is never allowed to select tools.
+The demo is self-contained and works without a network connection or API key. To use an OpenAI-compatible extraction provider, copy `.env.example` to `.env`, set `AI_PROVIDER=remote`, `OPENAI_API_KEY`, and optionally `AI_BASE_URL` and `AI_MODEL`. The remote provider is used only for the extraction proposal and falls back to the local pipeline if it is unavailable. Email content is treated as untrusted input and is never allowed to select tools.
 
 ## Test and check
 
