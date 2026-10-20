@@ -1,8 +1,8 @@
 {
-  "name": "riff",
+  "name": "orbit-preview",
   "version": "0.1.0",
   "private": true,
-  "description": "Riff, a premium project discovery workspace with transparent agentic fit.",
+  "description": "Orbit design preview for AI-powered opportunity discovery.",
   "type": "module",
   "scripts": {
     "start": "node server.js",

@@ -1,21 +1,18 @@
-# Riff design system
+# Orbit design preview system
 
 ## Visual direction
-An observatory for ideas at night: deep moss-black, bone, acid lime, coral, and a sparse radar grid. The memorable element is the orbit motif, where projects drift around a quiet center until one pulls closer.
+Phase 0 explores three materially different identities for an opportunity discovery instrument. The public preview must feel like a product reveal, then open into a small working model of Orbit Lens.
 
 ## Palette
-- Night: `#111719`
-- Bone: `#eeeae0`
-- Paper: `#f5f2ea`
-- Lime: `#dfff64`
-- Coral: `#ff907a`
-- Gold: `#e6b353`
+- Living Orb: night `#111719`, bone `#eeeae0`, lime `#dfff64`, coral `#ff907a`
+- Intelligent Artifact: paper `#ede8de`, cobalt `#3a4fe3`, copper `#ce7656`, ink `#1b1d2a`
+- Organic Companion: plum `#211a2d`, seafoam `#c5ead8`, apricot `#f2aa79`, mist `#e9e2d4`
 
 ## Type
-Use `DM Sans` for interface copy and `Space Grotesk` for display and system labels. Keep the type geometric and compressed so the project cards feel like instruments, not dashboards.
+Use `DM Sans` for interface copy and `Space Grotesk` for display and system labels. Direction B may shift display color and surface treatment, but the same hierarchy should remain legible across all three concepts.
 
 ## Principles
-- Show one project at a time, with enough context to feel the project.
-- Use asymmetry, depth, and radial motion instead of a grid of identical cards.
-- Keep the agent in a side rail, not as a full-screen chatbot.
-- Motion should communicate pull, match, and reversibility.
+- Show one opportunity at a time, with enough context to feel its shape.
+- Make Orbit Lens the signature instrument, not a floating chatbot.
+- Use motion to communicate idle, engaged, analyzing, insight, and complete states.
+- Keep mock scores labeled as illustrative and keep the approval gate explicit.

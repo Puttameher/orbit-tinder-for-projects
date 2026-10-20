@@ -1,6 +1,6 @@
-# Riff
+# Orbit Design Preview
 
-Riff is a premium project-discovery workspace for people who make things. It combines Tinder-like project discovery with transparent fit analysis, mutual matches, saved shortlists, remix briefs, and agent-drafted introductions.
+Orbit is an AI-powered opportunity discovery platform for projects, research, open-source work, and career opportunities. This repository is currently at **Phase 0: Design Preview MVP**. It intentionally stops before production application implementation.
 
 ## See it
 
@@ -8,24 +8,15 @@ Riff is a premium project-discovery workspace for people who make things. It com
 http://localhost:4173
 ```
 
-The default route is the public preview. Click **Enter workspace** or **Explore the orbit** to open the product dashboard.
+The default route is the public preview. Compare three distinct visual directions, activate Orbit Lens, inspect the sample opportunity analysis, preview the dashboard, then explicitly approve a direction.
 
-## Demo flow
+## Preview flow
 
-1. Land on the public Riff preview and scroll through the product thesis.
-2. Enter the workspace.
-3. Use the project deck to pass, save, or like projects.
-4. Click **Read this project** to get an evidence-backed fit read.
-5. Like a reciprocal project to trigger the mutual match animation.
-6. Open the agent result and create a separate remix brief.
-7. Draft an introduction. It is editable and never sent automatically.
-8. Explore Matches, Saved, and Remixes from the sidebar.
-
-Keyboard shortcuts in Discover:
-
-- `←` pass
-- `Space` save
-- `→` like
+1. Review the cinematic landing page.
+2. Switch between **Living Orb**, **Intelligent Artifact**, and **Organic Companion**.
+3. Drag the opportunity card into Orbit Lens or press **Analyze with Lens**.
+4. Inspect the sample analysis and dashboard preview.
+5. Choose a direction, select elements to keep, and submit the explicit approval.
 
 ## Run locally
 
@@ -36,7 +27,7 @@ npm install
 npm start
 ```
 
-The app initializes `data/rally-state.json` from `data/rally-seed.json`. Delete the state file to reset the local demo account. The state file is ignored by git.
+Preview selection and approval are stored in browser `localStorage`. No backend configuration is required for the design preview.
 
 ## Tests and checks
 
@@ -45,21 +36,21 @@ npm test
 npm run check
 ```
 
-The test suite covers the original Evorin primitives plus Riff's bounded fit scoring, evidence-backed explanations, remix isolation, and draft-only introduction behavior.
+The existing test suite covers the earlier backend primitives. The preview itself is intentionally static/mock and clearly labeled as such.
 
 ## Docker
 
 ```bash
-docker build -t riff .
-docker run --rm -p 4173:4173 -v "${PWD}/data:/app/data" riff
+docker build -t orbit-preview .
+docker run --rm -p 4173:4173 -v "${PWD}/data:/app/data" orbit-preview
 ```
 
 Docker configuration is included for clean Linux rebuilds. Docker is not installed in the current development environment, so the container build must run in a Docker-enabled environment.
 
 ## Architecture
 
-Read `RIFF_ARCHITECTURE.md` for product domains, entity model, agent boundaries, API routes, trust constraints, and the evolution path toward PostgreSQL, background jobs, and scoped MCP tools.
+Read `ORBIT_ARCHITECTURE.md` for the design-preview boundary, the future production architecture, ML pipeline, agent workflows, and approval gate.
 
 ## Current scope
 
-This is a local demo/MVP. It does not yet implement production authentication, multi-user realtime collaboration, private object storage, moderation queues, or Riff-specific MCP tools. The UI and API are structured so those boundaries can be added without replacing the product concept.
+This is a standalone design preview. It does not implement production authentication, opportunity ingestion, real ML ranking, real AI analysis, CV processing, private object storage, or agent execution. Those are deliberately deferred until the owner approves a design direction.
