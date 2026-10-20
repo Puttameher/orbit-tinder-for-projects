@@ -4,6 +4,7 @@ const preview = {
   approved: JSON.parse(localStorage.getItem('orbit-preview-state') || 'null'),
   dragSource: null
 };
+let orbitState = null;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -36,6 +37,29 @@ function toast(message) {
 
 function scrollToTarget(id) { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
+async function api(path, options = {}) {
+  const response = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...options });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error?.message || result.error || result.message || 'Orbit request failed.');
+  return result;
+}
+
+async function loadOrbitState() {
+  try {
+    orbitState = await api('/api/orbit/state');
+    const first = orbitState.discover?.[0];
+    if (first) {
+      orbitState.currentOpportunityId = first.id;
+      const titleNodes = [document.querySelector('.opportunity-body h3'), document.querySelector('.app-deck-copy h4')].filter(Boolean);
+      titleNodes.forEach((node) => { node.textContent = first.title; });
+      const summaryNodes = [document.querySelector('.opportunity-body p'), document.querySelector('.app-deck-copy p')].filter(Boolean);
+      summaryNodes.forEach((node) => { node.textContent = first.summary; });
+    }
+  } catch (error) {
+    toast('Preview mode is active. Functional Orbit API is temporarily unavailable.');
+  }
+}
+
 function setDirection(direction, announce = true) {
   preview.direction = direction; localStorage.setItem('orbit-preview-direction-v2', direction); document.body.className = `direction-${direction}`;
   $$('.direction-tab').forEach((tab) => tab.classList.toggle('active', tab.dataset.direction === direction));
@@ -49,14 +73,20 @@ function setLensState(state) {
   const labels = { idle: 'idle · ready to inspect', engaged: 'engaged · context acquired', analyzing: 'analyzing · mapping the fit', insight: 'insight · ready to inspect', complete: 'complete · next move available' }; label.textContent = labels[state];
 }
 
-function renderAnalysis() {
-  $('#analysis-panel').innerHTML = `<div class="analysis-content"><small>Orbit Lens · illustrative analysis</small><h3>Campus Pantry</h3><p>A dignity-first logistics layer for students. The opportunity is early, concrete, and close to your product-design interests.</p><div class="analysis-score"><div><b>84%</b><span>readiness estimate</span></div><span>not a live ML prediction</span></div><div class="analysis-list"><div><i>+</i><span>Shared interest: education and civic tech</span></div><div><i>+</i><span>Weekend commitment fits your stated availability</span></div><div><i>!</i><span>Backend ownership is the missing capability</span></div></div><div class="analysis-next"><b>Next action:</b> review the open role and ask what the first milestone needs.</div></div>`;
+function renderAnalysis(run) {
+  const fit = run?.fit;
+  const opportunity = orbitState?.discover?.find((item) => item.id === orbitState.currentOpportunityId) || { title: 'Campus Pantry', summary: 'A dignity-first logistics layer for students.' };
+  const score = fit?.score ?? 84;
+  const strengths = fit?.strengths?.slice(0, 2) || ['Shared purpose in education and civic tech', 'Weekend availability appears workable'];
+  const gap = fit?.gaps?.[0] || 'Backend ownership is the missing capability';
+  const next = run?.nextActions?.actions?.find((action) => action.type === 'verify' || action.type === 'clarify')?.title || 'Review the open role and ask what the first milestone needs.';
+  $('#analysis-panel').innerHTML = `<div class="analysis-content"><small>Orbit Lens · transparent agent analysis</small><h3>${esc(opportunity.title)}</h3><p>${esc(opportunity.summary)}</p><div class="analysis-score"><div><b>${score}%</b><span>declared fit score</span></div><span>${fit ? 'functional baseline' : 'preview fallback'}</span></div><div class="analysis-list"><div><i>+</i><span>${esc(strengths[0])}</span></div><div><i>+</i><span>${esc(strengths[1] || 'Opportunity stage is visible')}</span></div><div><i>!</i><span>${esc(gap)}</span></div></div><div class="analysis-next"><b>Next action:</b> ${esc(next)}</div></div>`;
 }
 
-function runAnalysis(source = 'button') {
+async function runAnalysis(source = 'button') {
   if (preview.lensState === 'analyzing') return;
   setLensState('engaged'); if (source === 'drag') { $('#opportunity-card').classList.add('dragging'); window.setTimeout(() => $('#opportunity-card').classList.remove('dragging'), 400); }
-  window.setTimeout(() => setLensState('analyzing'), 350); window.setTimeout(() => { setLensState('insight'); renderAnalysis(); toast('Lens found an overlap, a gap, and a next action.'); }, 1450);
+  window.setTimeout(() => setLensState('analyzing'), 350); window.setTimeout(async () => { let run = null; try { if (orbitState?.currentOpportunityId) run = await api(`/api/orbit/opportunities/${orbitState.currentOpportunityId}/analyze`, { method: 'POST', body: '{}' }); } catch { /* preview fallback remains useful offline */ } setLensState('insight'); renderAnalysis(run); toast(run ? 'Lens found an overlap, a gap, and a next action.' : 'Lens preview completed with local sample data.'); }, 1450);
 }
 
 function setupDrag() {
@@ -75,8 +105,8 @@ function initMotionStudy() {
 
 function bindAppDeck() {
   const card = $('#app-deck-card'); if (!card) return;
-  const swipe = (direction) => { card.classList.remove('app-swipe-left', 'app-swipe-right', 'app-saved'); if (direction === 'save') card.classList.add('app-saved'); else card.classList.add(direction === 'left' ? 'app-swipe-left' : 'app-swipe-right'); window.setTimeout(() => { card.classList.remove('app-swipe-left', 'app-swipe-right', 'app-saved'); }, 620); };
-  $('#app-pass')?.addEventListener('click', () => swipe('left')); $('#app-save')?.addEventListener('click', () => swipe('save')); $('#app-like')?.addEventListener('click', () => { swipe('right'); toast('Illustrative match signal sent.'); });
+  const swipe = async (direction) => { card.classList.remove('app-swipe-left', 'app-swipe-right', 'app-saved'); if (direction === 'save') card.classList.add('app-saved'); else card.classList.add(direction === 'left' ? 'app-swipe-left' : 'app-swipe-right'); try { if (orbitState?.currentOpportunityId) { const decision = direction === 'left' ? 'pass' : direction === 'save' ? 'save' : 'like'; const result = await api('/api/orbit/swipe', { method: 'POST', body: JSON.stringify({ projectId: orbitState.currentOpportunityId, decision }) }); toast(result.match ? 'Mutual interest found. Match created.' : decision === 'save' ? 'Saved to your Orbit shortlist.' : 'Signal recorded.'); await loadOrbitState(); } } catch (error) { toast(error.message); } window.setTimeout(() => { card.classList.remove('app-swipe-left', 'app-swipe-right', 'app-saved'); }, 620); };
+  $('#app-pass')?.addEventListener('click', () => swipe('left')); $('#app-save')?.addEventListener('click', () => swipe('save')); $('#app-like')?.addEventListener('click', () => swipe('right'));
 }
 
 function bindScrollMotion() {
@@ -86,7 +116,7 @@ function bindScrollMotion() {
 
 function saveApproval(event) {
   event.preventDefault(); const form = new FormData(event.currentTarget); const direction = $('#approval-direction').value; const state = { approved: true, direction, keep: { lens: form.get('keepLens') === 'on', card: form.get('keepCard') === 'on', motion: form.get('keepMotion') === 'on' }, notes: $('#approval-notes').value.trim(), approvedAt: new Date().toISOString() };
-  preview.approved = state; localStorage.setItem('orbit-preview-state', JSON.stringify(state)); const status = $('#approval-status'); status.textContent = `Approved ${direction.toUpperCase()} on ${new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date())}. Production remains paused until this approval is reviewed in the project chat.`; status.classList.add('approved'); toast('Direction recorded. Production is still paused for owner review.');
+  preview.approved = state; localStorage.setItem('orbit-preview-state', JSON.stringify(state)); const status = $('#approval-status'); status.textContent = `Approved ${direction.toUpperCase()} on ${new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date())}. This direction is now the active Orbit product theme.`; status.classList.add('approved'); toast('Direction recorded. Orbit is ready for the functional build.');
 }
 
 function restoreApproval() {
@@ -104,3 +134,4 @@ function bind() {
 }
 
 bind();
+loadOrbitState();

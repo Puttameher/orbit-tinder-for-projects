@@ -15,6 +15,17 @@ import {
   validateStyleRecommendation
 } from './lib/evorin.js';
 import { createRemixPlan, draftIntroduction, explainProjectFit } from './lib/rally.js';
+import {
+  createIntroductionDraft as createOrbitIntroductionDraft,
+  createRemixPlan as createOrbitRemixPlan,
+  explainFit,
+  normalizeOpportunity,
+  normalizeProfile,
+  planNextActions,
+  rankOpportunities,
+  validateProfile
+} from './lib/orbit-domain.js';
+import { createEvaluationReport, getModelVersionMetadata } from './lib/orbit-eval.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
@@ -284,6 +295,98 @@ function rallyActivity(state, title, detail, kind = 'system') {
   state.activity = state.activity.slice(0, 12);
 }
 
+function orbitActivity(state, title, detail, kind = 'system') {
+  state.activity = Array.isArray(state.activity) ? state.activity : [];
+  state.activity.unshift({ id: randomUUID(), title, detail, kind, time: 'Just now' });
+  state.activity = state.activity.slice(0, 16);
+}
+
+function orbitProfile(state) {
+  return normalizeProfile({
+    ...state.user,
+    interests: state.user.interests || [],
+    skills: state.user.skills || [],
+    goals: state.user.goals || state.user.lookingFor || [],
+    availability: state.user.availability,
+    timezone: state.user.timezone
+  });
+}
+
+function orbitOpportunity(project) {
+  return normalizeOpportunity({
+    ...project,
+    kind: project.kind || 'project',
+    tags: project.tags || [],
+    needs: project.needs || [],
+    skills: project.skills || project.stack || [],
+    source: project.provenance || { provider: 'orbit-demo-catalog', sourceId: project.id, observedAt: project.updatedAt || new Date().toISOString() },
+    provenance: project.provenance || { provider: 'orbit-demo-catalog', sourceId: project.id, observedAt: project.updatedAt || new Date().toISOString() }
+  });
+}
+
+async function handleOrbitApi(req, res, pathname) {
+  const state = await getRallyState();
+  state.feedbackEvents = Array.isArray(state.feedbackEvents) ? state.feedbackEvents : [];
+  const profile = orbitProfile(state);
+  if (pathname === '/api/orbit/state' && req.method === 'GET') {
+    const ranked = rankOpportunities(state.projects.map(orbitOpportunity), profile, { asOf: new Date().toISOString() });
+    const swiped = new Set(state.swipes.map((item) => item.projectId));
+    const discover = ranked.filter((item) => !swiped.has(item.opportunity.id)).map((item) => ({ ...item.opportunity, score: item.score, featureBreakdown: item.featureBreakdown, rank: item.rank }));
+    return send(res, 200, { ...state, profile, discover, model: getModelVersionMetadata(), mode: 'functional-mvp' });
+  }
+  if (pathname === '/api/orbit/profile' && req.method === 'PATCH') {
+    const input = await body(req);
+    const candidate = { ...state.user, ...input };
+    const validation = validateProfile(candidate);
+    if (!validation.ok) return send(res, 400, validation.error);
+    state.user = { ...state.user, ...candidate, ...validation.value, skills: validation.value.skills, interests: validation.value.interests, goals: validation.value.goals };
+    orbitActivity(state, 'Profile context updated', 'Orbit will use the new declared context on the next ranking pass', 'profile');
+    await saveRallyState(state); return send(res, 200, { profile: orbitProfile(state) });
+  }
+  if (pathname === '/api/orbit/swipe' && req.method === 'POST') {
+    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project || !['like', 'pass', 'save'].includes(input.decision)) return send(res, 400, { error: 'Choose a valid opportunity and decision.' });
+    state.swipes = state.swipes.filter((item) => item.projectId !== project.id);
+    state.swipes.push({ projectId: project.id, decision: input.decision, createdAt: new Date().toISOString() });
+    if (input.decision === 'save' && !state.saved.includes(project.id)) state.saved.unshift(project.id);
+    let match = null;
+    if (input.decision === 'like' && project.reciprocal) {
+      match = state.matches.find((item) => item.projectId === project.id) || { id: randomUUID(), projectId: project.id, status: 'new', createdAt: new Date().toISOString() };
+      if (!state.matches.some((item) => item.id === match.id)) state.matches.unshift(match);
+    }
+    state.feedbackEvents.unshift({ id: randomUUID(), projectId: project.id, signal: input.decision, source: 'swipe', createdAt: new Date().toISOString() });
+    orbitActivity(state, input.decision === 'save' ? `Saved ${project.title}` : input.decision === 'like' ? `Interested in ${project.title}` : `Passed on ${project.title}`, project.signal || 'explicit discovery signal', input.decision);
+    await saveRallyState(state); return send(res, 200, { decision: input.decision, projectId: project.id, match, next: state.projects.find((item) => !state.swipes.some((swipe) => swipe.projectId === item.id))?.id || null });
+  }
+  const analysisMatch = pathname.match(/^\/api\/orbit\/opportunities\/([^/]+)\/analyze$/);
+  if (analysisMatch && req.method === 'POST') {
+    const project = state.projects.find((item) => item.id === analysisMatch[1]);
+    if (!project) return send(res, 404, { error: 'Opportunity not found.' });
+    const opportunity = orbitOpportunity(project); const fit = explainFit(opportunity, profile, { asOf: new Date().toISOString() });
+    const mutualInterest = state.matches.some((item) => item.projectId === project.id);
+    const nextActions = planNextActions(opportunity, profile, fit, { mutualInterest });
+    const run = { id: randomUUID(), type: 'opportunity-analysis', opportunityId: project.id, fit, nextActions, createdAt: new Date().toISOString(), model: 'orbit-transparent-agent-v1', illustrative: false };
+    state.agentRuns.unshift(run); orbitActivity(state, `Orbit Lens analyzed ${project.title}`, `${fit.score}% fit from declared evidence`, 'agent'); await saveRallyState(state); return send(res, 200, run);
+  }
+  if (pathname === '/api/orbit/remix' && req.method === 'POST') {
+    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project) return send(res, 404, { error: 'Opportunity not found.' });
+    const remix = createOrbitRemixPlan(orbitOpportunity(project), profile, { id: randomUUID() }); state.remixes.unshift(remix); orbitActivity(state, `Remix drafted: ${project.title}`, 'Separate plan created. Source opportunity unchanged.', 'remix'); await saveRallyState(state); return send(res, 201, { remix });
+  }
+  if (pathname === '/api/orbit/introduction' && req.method === 'POST') {
+    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project) return send(res, 404, { error: 'Opportunity not found.' });
+    const opportunity = orbitOpportunity(project); const fit = explainFit(opportunity, profile, { asOf: new Date().toISOString() }); const draft = createOrbitIntroductionDraft(opportunity, fit, profile); state.agentRuns.unshift({ id: randomUUID(), type: 'introduction-draft', opportunityId: project.id, draft, createdAt: new Date().toISOString() }); await saveRallyState(state); return send(res, 200, { draft });
+  }
+  if (pathname === '/api/orbit/evaluation' && req.method === 'POST') {
+    const input = await body(req); const report = createEvaluationReport({ cases: input.cases || [{ id: 'demo', user: state.user, opportunities: state.projects, relevance: input.relevance || {} }], k: input.k || 5, referenceDate: input.referenceDate || new Date().toISOString() }); return send(res, 200, report);
+  }
+  if (pathname === '/api/orbit/feedback' && req.method === 'POST') {
+    const input = await body(req); if (!input.projectId || !['like', 'pass', 'save', 'open', 'source-click'].includes(input.signal)) return send(res, 400, { error: 'projectId and a supported signal are required.' }); state.feedbackEvents.unshift({ id: randomUUID(), ...input, createdAt: new Date().toISOString() }); await saveRallyState(state); return send(res, 201, state.feedbackEvents[0]);
+  }
+  return send(res, 404, { error: 'Orbit route not found.' });
+}
+
 async function handleRallyApi(req, res, pathname) {
   const state = await getRallyState();
   if (pathname === '/api/rally/state' && req.method === 'GET') {
@@ -449,6 +552,7 @@ async function serveStatic(res, pathname) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    if (url.pathname.startsWith('/api/orbit/')) return handleOrbitApi(req, res, url.pathname);
     if (url.pathname.startsWith('/api/rally/')) return handleRallyApi(req, res, url.pathname);
     if (url.pathname.startsWith('/api/evorin/')) return handleEvorinApi(req, res, url.pathname);
     if (jsonRoute(url.pathname, req.method)) return handleApi(req, res, url.pathname);
