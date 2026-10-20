@@ -1,0 +1,120 @@
+{
+  "profile": {
+    "name": "Maya Rao",
+    "focus": "Build a calm, evidence-backed week",
+    "notifications": true
+  },
+  "connection": {
+    "provider": "Gmail",
+    "email": "maya.rao.dev@gmail.com",
+    "connected": false,
+    "lastSync": null
+  },
+  "threads": [
+    {
+      "id": "thread-scholarship",
+      "sender": "Priya Menon",
+      "senderEmail": "priya@frontierbuildathon.org",
+      "subject": "Your Frontier Fellowship application",
+      "preview": "Please upload the final project note by Friday, October 23.",
+      "body": "Hi Maya,\n\nYour application is moving to the final review round. Please upload the final project note and your latest transcript by Friday, October 23 at 5:00 PM IST.\n\nIf you need an extension, reply before Wednesday so we can help.\n\nPriya",
+      "receivedAt": "2026-10-20T08:42:00+05:30",
+      "label": "Opportunity",
+      "unread": true,
+      "source": "Gmail"
+    },
+    {
+      "id": "thread-api-review",
+      "sender": "Arjun Kapoor",
+      "senderEmail": "arjun@orbitlabs.io",
+      "subject": "Re: agent evaluation notes",
+      "preview": "Can you send the eval matrix after the study group tomorrow?",
+      "body": "Hey Maya,\n\nThe latest agent traces look promising. Can you send the eval matrix after the study group tomorrow? I want to compare tool-call precision before our Friday review.\n\nArjun",
+      "receivedAt": "2026-10-19T21:18:00+05:30",
+      "label": "Project",
+      "unread": false,
+      "source": "Gmail"
+    },
+    {
+      "id": "thread-workshop",
+      "sender": "Open Systems Club",
+      "senderEmail": "hello@opensystems.club",
+      "subject": "Reading circle: retrieval systems",
+      "preview": "Bring one failure mode from your current RAG project.",
+      "body": "We are meeting this Thursday at 7:30 PM for a retrieval systems reading circle. Bring one failure mode from your current RAG project and a question for the group.",
+      "receivedAt": "2026-10-19T15:06:00+05:30",
+      "label": "Learning",
+      "unread": true,
+      "source": "Gmail"
+    },
+    {
+      "id": "thread-invoice",
+      "sender": "Figma",
+      "senderEmail": "receipts@figma.com",
+      "subject": "Your October receipt",
+      "preview": "Your payment was processed successfully.",
+      "body": "Your October subscription receipt is ready. No action is required.",
+      "receivedAt": "2026-10-18T09:12:00+05:30",
+      "label": "Receipts",
+      "unread": false,
+      "source": "Gmail"
+    }
+  ],
+  "reminders": [
+    {
+      "id": "reminder-demo",
+      "title": "Bring one RAG failure mode to reading circle",
+      "dueAt": "2026-10-22T19:30:00+05:30",
+      "status": "upcoming",
+      "confidence": 0.94,
+      "sourceThreadId": "thread-workshop",
+      "sourceQuote": "Bring one failure mode from your current RAG project and a question for the group.",
+      "interpretation": "Thursday, October 22 at 7:30 PM IST",
+      "createdBy": "TraceForm agent",
+      "createdAt": "2026-10-19T15:09:00+05:30"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-1",
+      "title": "Agent eval notebook",
+      "body": "Track precision separately from completion rate. The failure mode I want to bring: the agent selected a valid tool, but with the wrong scope.",
+      "tags": ["agents", "evaluation"],
+      "sourceThreadId": "thread-api-review",
+      "createdAt": "2026-10-19T22:02:00+05:30",
+      "updatedAt": "2026-10-19T22:02:00+05:30"
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill-orchestration",
+      "name": "Agent orchestration",
+      "description": "Designing reliable plans, tool boundaries, and recovery paths.",
+      "progress": 68,
+      "streak": 4,
+      "evidence": ["Compared tool-call precision in an eval matrix", "Documented a wrong-scope failure mode"]
+    },
+    {
+      "id": "skill-rag",
+      "name": "Retrieval systems",
+      "description": "Building grounded retrieval and evaluation loops.",
+      "progress": 52,
+      "streak": 2,
+      "evidence": ["Started a reading circle on retrieval failure modes"]
+    },
+    {
+      "id": "skill-communication",
+      "name": "Technical communication",
+      "description": "Turning technical work into clear, useful artifacts.",
+      "progress": 44,
+      "streak": 3,
+      "evidence": ["Wrote a project note for Frontier Fellowship"]
+    }
+  ],
+  "activity": [
+    { "id": "act-1", "kind": "evidence", "title": "Reading circle linked to Retrieval systems", "detail": "The agent found a learning signal in Open Systems Club", "time": "14 min ago" },
+    { "id": "act-2", "kind": "note", "title": "Notebook updated", "detail": "Agent eval notebook", "time": "Yesterday" },
+    { "id": "act-3", "kind": "system", "title": "TraceForm is ready", "detail": "Your local evidence graph is private by default", "time": "Monday" }
+  ],
+  "audit": []
+}

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101723" />
+    <title>TraceForm · Make signal usable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div><strong>traceform</strong><small>your signal, with receipts</small></div>
+        </div>
+        <div class="sidebar-rule"></div>
+        <div class="workspace-label">Workspace</div>
+        <nav class="nav-stack">
+          <button class="nav-item active" data-view="overview"><span class="nav-glyph">◈</span>Command center</button>
+          <button class="nav-item" data-view="inbox"><span class="nav-glyph">⌁</span>Inbox <b id="inbox-count">3</b></button>
+          <button class="nav-item" data-view="reminders"><span class="nav-glyph">◷</span>Reminders <b id="reminder-count">1</b></button>
+          <button class="nav-item" data-view="notes"><span class="nav-glyph">✎</span>Personal notebook</button>
+          <button class="nav-item" data-view="skills"><span class="nav-glyph">✦</span>Skill growth</button>
+        </nav>
+        <div class="sidebar-spacer"></div>
+        <div class="bridge-card">
+          <div class="bridge-orbit"><i></i><i></i><i></i></div>
+          <div><span class="eyebrow">MCP bridge</span><strong>Let other tools ask safely.</strong></div>
+          <button class="text-button" data-view="mcp">Open bridge <span>↗</span></button>
+        </div>
+        <button class="profile-button" id="profile-button"><span class="avatar">MR</span><span><strong>Maya Rao</strong><small>Builder mode</small></span><span class="dots">•••</span></button>
+      </aside>
+
+      <main class="main-canvas">
+        <header class="topbar">
+          <div class="breadcrumb"><span>TraceForm</span><span>/</span><strong id="view-label">Command center</strong></div>
+          <div class="top-actions">
+            <button class="icon-button" id="notification-button" aria-label="Enable notifications" title="Enable notifications">♧<span class="notification-dot"></span></button>
+            <button class="connect-button" id="connect-button"><span class="gmail-glyph">M</span><span id="connect-label">Connect Gmail</span></button>
+          </div>
+        </header>
+
+        <section id="overview-view" class="view active-view">
+          <div class="hero-row">
+            <div class="hero-copy">
+              <div class="eyebrow accent-eyebrow"><span class="pulse"></span> Tuesday, October 20 · 09:41</div>
+              <h1>Make signal<br /><em>usable.</em></h1>
+              <p class="hero-lede">TraceForm turns the loose threads in your inbox into <strong>reviewable next actions</strong>, personal context, and proof that you are getting better.</p>
+              <div class="hero-actions"><button class="primary-button" data-view="inbox">Review inbox <span>↗</span></button><button class="quiet-button" data-view="notes">Open notebook</button></div>
+            </div>
+            <div class="signal-trace" aria-label="Signal trace: message to reminder to growth">
+              <div class="trace-heading"><span>Live signal trace</span><span class="trace-status"><i></i> private by default</span></div>
+              <div class="trace-line"><span></span><span></span><span></span></div>
+              <div class="trace-node node-message"><span class="node-icon">⌁</span><div><small>INBOX SIGNAL</small><strong>Frontier Fellowship</strong><p>“Upload the final project note…”</p></div><b>09:12</b></div>
+              <div class="trace-connector"><span>agent reads intent</span><i></i></div>
+              <div class="trace-node node-reminder"><span class="node-icon">◷</span><div><small>PROPOSED COMMITMENT</small><strong>Upload project note</strong><p>Friday, Oct 23 · 5:00 PM</p></div><b>94%</b></div>
+              <div class="trace-connector"><span>you confirm</span><i></i></div>
+              <div class="trace-node node-skill"><span class="node-icon">✦</span><div><small>GROWTH EVIDENCE</small><strong>Technical communication</strong><p>One more receipt in the graph</p></div><b>+4</b></div>
+            </div>
+          </div>
+
+          <div class="section-heading"><div><span class="eyebrow">Your desk today</span><h2>Nothing important<br />should live only in your head.</h2></div><span class="section-note">Updated just now</span></div>
+          <div class="dashboard-grid">
+            <article class="surface attention-surface">
+              <div class="surface-heading"><div><span class="eyebrow">Attention queue</span><h3 id="attention-title">1 commitment needs you</h3></div><button class="circle-arrow" data-view="reminders">↗</button></div>
+              <div class="attention-item"><div class="attention-mark">!</div><div><strong>Upload final project note</strong><p>Frontier Fellowship · due Friday</p></div><span class="confidence-pill">94% clear</span></div>
+              <button class="inline-link" data-view="reminders">Open review queue <span>→</span></button>
+            </article>
+            <article class="surface notebook-surface">
+              <div class="surface-heading"><div><span class="eyebrow">Personal notebook</span><h3>Keep the thinking<br />that made the work.</h3></div><button class="circle-arrow" data-view="notes">↗</button></div>
+              <p class="note-preview">“Track precision separately from completion rate. The failure mode I want to bring…”</p>
+              <div class="note-footer"><span class="tag">agents</span><span>edited yesterday</span></div>
+            </article>
+            <article class="surface growth-surface">
+              <div class="surface-heading"><div><span class="eyebrow">Self-improving loop</span><h3>Evidence, not vibes.</h3></div><button class="circle-arrow" data-view="skills">↗</button></div>
+              <div class="growth-meter"><div class="meter-label"><strong>Agent orchestration</strong><span id="top-skill-progress">68%</span></div><div class="meter"><i id="top-skill-meter" style="width:68%"></i></div></div>
+              <div class="growth-meta"><span><b id="top-skill-streak">4</b> day streak</span><span>2 receipts this week</span></div>
+            </article>
+          </div>
+          <div class="activity-section"><div class="section-heading compact"><div><span class="eyebrow">Recent movement</span><h2>What changed while you were building.</h2></div><button class="quiet-button" data-view="mcp">View audit trail</button></div><div class="activity-list" id="activity-list"></div></div>
+        </section>
+
+        <section id="inbox-view" class="view">
+          <div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> Connected signal</span><h1>Inbox, without<br /><em>the fog.</em></h1><p>TraceForm watches for commitments and learning signals. It never turns a sentence into a task without showing you the receipt.</p></div><button class="primary-button" id="sync-button">Sync now <span>↻</span></button></div>
+          <div class="inbox-layout"><div class="thread-list" id="thread-list"></div><div class="thread-detail" id="thread-detail"><div class="empty-detail"><span>⌁</span><h3>Select a thread</h3><p>See the message, run the agent, and keep the evidence connected.</p></div></div></div>
+        </section>
+
+        <section id="reminders-view" class="view"><div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> Review before action</span><h1>Your next<br /><em>moves.</em></h1><p>These are proposals, not commands. Confirm them, reshape them, or let them go.</p></div><div class="filter-tabs"><button class="active" data-filter="all">All</button><button data-filter="upcoming">Upcoming</button><button data-filter="completed">Done</button></div></div><div class="reminders-board" id="reminders-board"></div></section>
+
+        <section id="notes-view" class="view"><div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> A private surface</span><h1>Keep the<br /><em>thread.</em></h1><p>Not everything needs to become a task. Save the context, questions, and sharp edges that make your work yours.</p></div><button class="primary-button" id="new-note-button">New note <span>＋</span></button></div><div class="notes-layout"><div class="notes-list" id="notes-list"></div><form class="note-composer" id="note-form"><div class="composer-top"><span class="eyebrow">New thought</span><span class="save-state" id="save-state">Local only</span></div><input name="title" placeholder="Give this thought a name" required /><textarea name="body" placeholder="What is worth remembering?" required></textarea><div class="composer-bottom"><input name="tags" placeholder="tags, separated by commas" /><button class="primary-button" type="submit">Save note <span>↗</span></button></div></form></div></section>
+
+        <section id="skills-view" class="view"><div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> Personalized growth</span><h1>Get better<br /><em>on purpose.</em></h1><p>TraceForm turns completed work into visible evidence. You decide what counts. The agent only helps connect the dots.</p></div><div class="skill-summary"><strong id="skill-summary-count">3</strong><span>active skills<br />in your graph</span></div></div><div class="skills-layout"><div class="skill-list" id="skill-list"></div><aside class="evidence-panel"><span class="eyebrow">How the loop works</span><h3>Do the work.<br />Keep the receipt.</h3><div class="loop-steps"><div><span>01</span><p><b>Notice</b><small>Agent spots a signal in your real work.</small></p></div><div><span>02</span><p><b>Choose</b><small>You approve what deserves attention.</small></p></div><div><span>03</span><p><b>Compound</b><small>Completed work becomes evidence.</small></p></div></div><button class="quiet-button" data-view="reminders">See your evidence <span>↗</span></button></aside></div></section>
+
+        <section id="mcp-view" class="view"><div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> Local, scoped, observable</span><h1>The bridge<br /><em>stays narrow.</em></h1><p>Give your other tools a useful question, not the keys to your life. Every call is allowlisted, logged, and easy to revoke.</p></div><div class="bridge-status"><i></i><span><b>Local MCP ready</b><small>Read-only by default</small></span></div></div><div class="mcp-layout"><div class="mcp-console"><div class="console-bar"><span><i></i><i></i><i></i></span><span>traceform / mcp</span><span>localhost</span></div><div class="console-body"><div class="console-line"><span class="prompt">$</span><span>search_threads</span><span class="arg">query: “fellowship”</span></div><div class="console-line result"><span class="check">✓</span><span>1 scoped result returned</span></div><div class="console-result"><span class="result-icon">⌁</span><div><b>Frontier Fellowship application</b><small>Priya Menon · source thread</small></div><span class="result-lock">read-only</span></div><div class="console-line muted"><span class="prompt">$</span><span>awaiting your next question…</span></div></div></div><div class="mcp-controls"><div class="tool-legend"><span class="eyebrow">Available tools</span><div id="tool-list"></div></div><div class="mcp-run"><span class="eyebrow">Try a scoped call</span><div class="run-row"><select id="mcp-tool"><option value="search_threads">search_threads</option><option value="list_reminders">list_reminders</option><option value="list_notes">list_notes</option><option value="get_skill_progress">get_skill_progress</option></select><button class="primary-button" id="run-mcp-button">Run <span>↗</span></button></div><input id="mcp-query" placeholder="search term, e.g. fellowship" /><pre id="mcp-result">Results will appear here.</pre></div></div></div><div class="audit-section"><div class="section-heading compact"><div><span class="eyebrow">Audit trail</span><h2>Trust is a feature.</h2></div></div><div class="audit-list" id="audit-list"></div></div></section>
+      </main>
+    </div>
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
