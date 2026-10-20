@@ -1,0 +1,512 @@
+:root {
+  --bg: oklch(0.105 0.008 68);
+  --bg-deep: oklch(0.078 0.006 68);
+  --panel: oklch(0.145 0.009 68);
+  --panel2: oklch(0.185 0.012 68);
+  --bone: oklch(0.93 0.016 78);
+  --muted: oklch(0.63 0.015 78);
+  --line: oklch(0.91 0.014 78 / 0.14);
+  --line-strong: oklch(0.91 0.014 78 / 0.24);
+  --lime: oklch(0.82 0.135 105);
+  --coral: oklch(0.74 0.105 42);
+  --cobalt: oklch(0.58 0.09 286);
+  --gold: oklch(0.77 0.105 82);
+  --shadow: 0 32px 100px oklch(0 0 0 / 0.6);
+}
+
+html,
+body {
+  background: var(--bg-deep);
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% -12%, oklch(0.3 0.024 78 / 0.17), transparent 34rem),
+    radial-gradient(circle at 84% 48%, oklch(0.25 0.032 286 / 0.08), transparent 30rem),
+    var(--bg-deep);
+  color: var(--bone);
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: var(--gold);
+}
+
+.app-noise {
+  opacity: 0.09;
+  background-image: radial-gradient(oklch(0.96 0.02 78 / 0.34) 0.65px, transparent 0.65px);
+  background-size: 7px 7px;
+  mask-image: linear-gradient(to bottom, black, transparent 82%);
+}
+
+.app-topbar {
+  height: 76px;
+  padding: 0 48px;
+  border-bottom-color: var(--line);
+  background: oklch(0.09 0.007 68 / 0.94);
+  backdrop-filter: blur(18px);
+}
+
+.app-brand {
+  color: var(--bone);
+  letter-spacing: -0.12em;
+}
+
+.app-brand strong span {
+  color: var(--gold);
+}
+
+.app-mark {
+  border-color: var(--gold);
+  box-shadow: 0 0 22px oklch(0.77 0.105 82 / 0.16);
+}
+
+.app-mark:before {
+  border-color: var(--bone);
+  opacity: 0.7;
+}
+
+.app-mark i {
+  background: var(--gold);
+}
+
+.app-mark i:nth-child(2) {
+  background: var(--coral);
+}
+
+.app-mark i:nth-child(3) {
+  background: var(--lime);
+}
+
+.app-breadcrumb {
+  color: var(--muted);
+}
+
+.app-breadcrumb b {
+  color: var(--bone);
+  font-weight: 500;
+}
+
+.command-key,
+.icon-button,
+.return-link {
+  border-color: var(--line);
+  background: oklch(0.14 0.01 68 / 0.82);
+}
+
+.command-key:hover,
+.icon-button:hover,
+.return-link:hover {
+  border-color: var(--line-strong);
+  background: var(--panel2);
+}
+
+.icon-button {
+  color: var(--gold);
+}
+
+.return-link {
+  color: var(--muted);
+}
+
+.app-main {
+  max-width: 1440px;
+  padding: 74px 48px 160px;
+}
+
+.eyebrow {
+  color: var(--gold);
+  letter-spacing: 0.18em;
+}
+
+.eyebrow i,
+.agent-state i {
+  background: var(--gold);
+  box-shadow: 0 0 0 4px oklch(0.77 0.105 82 / 0.1), 0 0 18px oklch(0.77 0.105 82 / 0.35);
+}
+
+.app-heading,
+.secondary-heading {
+  border-bottom-color: var(--line);
+}
+
+.app-heading h1,
+.secondary-heading h1 {
+  color: var(--bone);
+  letter-spacing: -0.075em;
+}
+
+.app-heading h1 em,
+.secondary-heading h1 em {
+  color: var(--gold);
+}
+
+.app-heading p,
+.secondary-heading p {
+  color: var(--muted);
+}
+
+.orbit-count {
+  border-color: var(--line);
+  background: oklch(0.13 0.009 68 / 0.82);
+}
+
+.orbit-count b {
+  color: var(--gold);
+}
+
+.orbit-count span {
+  color: var(--muted);
+}
+
+.discover-grid {
+  gap: 64px;
+}
+
+.deck-stage {
+  min-height: 760px;
+}
+
+.deck-stage::before {
+  background: radial-gradient(circle, oklch(0.77 0.105 82 / 0.09), transparent 67%);
+  filter: blur(20px);
+}
+
+.corner-lens {
+  border-color: oklch(0.77 0.105 82 / 0.4);
+  background: oklch(0.12 0.008 68 / 0.82);
+  color: var(--gold);
+  box-shadow: 0 0 32px oklch(0.77 0.105 82 / 0.08);
+}
+
+.corner-lens:hover,
+.corner-lens.active {
+  border-color: var(--gold);
+  background: oklch(0.2 0.015 68);
+  box-shadow: 0 0 34px oklch(0.77 0.105 82 / 0.18);
+}
+
+.deck-stack {
+  filter: drop-shadow(0 36px 45px oklch(0 0 0 / 0.52));
+}
+
+.project-card {
+  border-color: var(--line-strong);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.behind-card {
+  background: oklch(0.12 0.008 68);
+  border-color: var(--line);
+}
+
+.main-card:hover {
+  border-color: oklch(0.77 0.105 82 / 0.5);
+}
+
+.project-art {
+  background:
+    radial-gradient(circle at 70% 28%, oklch(0.8 0.12 88 / 0.16), transparent 12rem),
+    linear-gradient(140deg, oklch(0.18 0.015 68), oklch(0.11 0.008 68));
+}
+
+.project-art.research {
+  background:
+    radial-gradient(circle at 66% 32%, oklch(0.58 0.09 286 / 0.22), transparent 12rem),
+    linear-gradient(140deg, oklch(0.17 0.015 68), oklch(0.1 0.008 68));
+}
+
+.project-art.climate {
+  background:
+    radial-gradient(circle at 66% 32%, oklch(0.82 0.135 105 / 0.16), transparent 12rem),
+    linear-gradient(140deg, oklch(0.17 0.015 68), oklch(0.1 0.008 68));
+}
+
+.art-kicker,
+.art-stage,
+.project-meta,
+.project-card-footer,
+.swipe-hint {
+  color: var(--muted);
+}
+
+.art-stage {
+  border-color: var(--line-strong);
+  background: oklch(0.1 0.008 68 / 0.62);
+}
+
+.art-orbit {
+  border-color: oklch(0.77 0.105 82 / 0.5);
+  box-shadow: 0 0 60px oklch(0.77 0.105 82 / 0.12);
+}
+
+.art-orbit::after {
+  background: var(--gold);
+  box-shadow: 0 0 18px var(--gold);
+}
+
+.project-content h2 {
+  color: var(--bone);
+}
+
+.project-content p {
+  color: var(--muted);
+}
+
+.project-tags span {
+  border-color: var(--line);
+  background: oklch(0.12 0.008 68 / 0.85);
+  color: var(--bone);
+}
+
+.project-card-footer {
+  border-top-color: var(--line);
+}
+
+.project-card-footer span:first-child {
+  color: var(--gold);
+}
+
+.swipe-control {
+  border-color: var(--line-strong);
+  background: oklch(0.145 0.009 68);
+  color: var(--bone);
+  box-shadow: 0 12px 28px oklch(0 0 0 / 0.22);
+}
+
+.swipe-control:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold);
+  background: var(--panel2);
+}
+
+.swipe-control.pass:hover {
+  color: var(--coral);
+}
+
+.swipe-control.save:hover,
+.swipe-control.like:hover {
+  color: var(--gold);
+}
+
+.lens-panel {
+  border-color: var(--line-strong);
+  background: oklch(0.125 0.009 68 / 0.96);
+  box-shadow: var(--shadow);
+}
+
+.lens-panel-head,
+.analysis-result,
+.lens-panel-footer {
+  border-color: var(--line);
+}
+
+.agent-state {
+  color: var(--gold);
+}
+
+.lens-copy strong,
+.analysis-result h3,
+.analysis-result small {
+  color: var(--bone);
+}
+
+.lens-copy p,
+.analysis-result p,
+.analysis-score span,
+.analysis-list span,
+.analysis-next {
+  color: var(--muted);
+}
+
+.lens-copy button,
+.analysis-next {
+  border-color: var(--line-strong);
+  background: oklch(0.16 0.012 68);
+}
+
+.lens-copy button:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.analysis-score b,
+.analysis-list i {
+  color: var(--gold);
+}
+
+.analysis-score b {
+  font-variant-numeric: tabular-nums;
+}
+
+.analysis-list div {
+  border-bottom-color: var(--line);
+}
+
+.bottom-nav {
+  border-color: var(--line-strong);
+  background: oklch(0.1 0.008 68 / 0.96);
+  box-shadow: 0 18px 50px oklch(0 0 0 / 0.42);
+  backdrop-filter: blur(18px);
+}
+
+.bottom-nav button {
+  color: var(--muted);
+}
+
+.bottom-nav button:hover,
+.bottom-nav button.active {
+  color: var(--bone);
+  background: oklch(0.17 0.012 68);
+}
+
+.bottom-nav button.active i {
+  color: var(--gold);
+}
+
+.bottom-nav button b {
+  background: var(--gold);
+  color: oklch(0.12 0.008 68);
+}
+
+.collection-card,
+.remix-row,
+.profile-form {
+  border-color: var(--line);
+  background: oklch(0.135 0.009 68);
+}
+
+.collection-card:hover,
+.remix-row:hover {
+  border-color: var(--line-strong);
+  background: oklch(0.17 0.012 68);
+}
+
+.collection-art {
+  background:
+    radial-gradient(circle at 72% 24%, oklch(0.77 0.105 82 / 0.16), transparent 10rem),
+    oklch(0.1 0.008 68);
+}
+
+.collection-card h3,
+.remix-row h3,
+.profile-form label {
+  color: var(--bone);
+}
+
+.collection-card p,
+.remix-row p {
+  color: var(--muted);
+}
+
+.collection-card button,
+.remix-row button,
+.save-profile {
+  border-color: var(--line-strong);
+  background: oklch(0.18 0.014 68);
+  color: var(--gold);
+}
+
+.collection-card button:hover,
+.remix-row button:hover,
+.save-profile:hover {
+  border-color: var(--gold);
+  background: oklch(0.23 0.02 68);
+}
+
+.profile-form input,
+.profile-form textarea,
+.profile-form select {
+  border-color: var(--line);
+  background: oklch(0.095 0.007 68);
+  color: var(--bone);
+}
+
+.profile-form input::placeholder,
+.profile-form textarea::placeholder {
+  color: oklch(0.54 0.012 78);
+}
+
+.empty-state {
+  border-color: var(--line-strong);
+  background: oklch(0.12 0.008 68);
+}
+
+.empty-state strong {
+  color: var(--bone);
+}
+
+.toast {
+  border-color: var(--line-strong);
+  background: oklch(0.13 0.009 68 / 0.98);
+  box-shadow: var(--shadow);
+}
+
+.toast strong {
+  color: var(--gold);
+}
+
+@media (max-width: 900px) {
+  .app-topbar {
+    padding: 0 24px;
+  }
+
+  .app-main {
+    padding: 54px 24px 140px;
+  }
+
+  .discover-grid {
+    gap: 34px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-topbar {
+    height: 68px;
+    padding: 0 16px;
+    gap: 14px;
+  }
+
+  .app-breadcrumb,
+  .return-link,
+  .command-key {
+    display: none;
+  }
+
+  .app-actions {
+    margin-left: auto;
+  }
+
+  .app-main {
+    padding: 38px 16px 130px;
+  }
+
+  .app-heading h1,
+  .secondary-heading h1 {
+    font-size: 46px;
+  }
+
+  .orbit-count {
+    display: none;
+  }
+
+  .deck-stage {
+    min-height: 660px;
+  }
+
+  .bottom-nav {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+}
