@@ -345,11 +345,28 @@ function orbitOpportunity(project) {
   });
 }
 
+function orbitPresentation(source, normalized) {
+  const rawOwner = source?.owner && typeof source.owner === 'object' ? source.owner : {};
+  return {
+    ...normalized,
+    description: source?.description || normalized.summary,
+    kicker: source?.kicker || null,
+    stack: Array.isArray(source?.stack) ? source.stack : normalized.skills,
+    visual: source?.visual || null,
+    reciprocal: Boolean(source?.reciprocal),
+    signal: source?.signal || null,
+    contributors: Number.isFinite(source?.contributors) ? source.contributors : null,
+    impact: source?.impact || null,
+    impactDetail: source?.impactDetail || null,
+    owner: { ...rawOwner, ...normalized.owner }
+  };
+}
+
 function orbitCatalog(state, profile, category = null) {
   const source = category ? filterOpportunitiesByCategory(state.projects, category) : state.projects;
   const ranked = rankOpportunities(source.map(orbitOpportunity), profile, { asOf: new Date().toISOString() });
   return ranked.map((item) => ({
-    ...item.opportunity,
+    ...orbitPresentation(source.find((project) => project.id === item.opportunity.id), item.opportunity),
     score: item.score,
     featureBreakdown: item.featureBreakdown,
     rank: item.rank
@@ -369,7 +386,12 @@ async function handleOrbitApi(req, res, pathname) {
   if (pathname === '/api/orbit/state' && req.method === 'GET') {
     const ranked = rankOpportunities(state.projects.map(orbitOpportunity), profile, { asOf: new Date().toISOString() });
     const swiped = new Set(state.swipes.map((item) => item.projectId));
-    const discover = ranked.filter((item) => !swiped.has(item.opportunity.id)).map((item) => ({ ...item.opportunity, score: item.score, featureBreakdown: item.featureBreakdown, rank: item.rank }));
+    const discover = ranked.filter((item) => !swiped.has(item.opportunity.id)).map((item) => ({
+      ...orbitPresentation(state.projects.find((project) => project.id === item.opportunity.id), item.opportunity),
+      score: item.score,
+      featureBreakdown: item.featureBreakdown,
+      rank: item.rank
+    }));
     return send(res, 200, { ...state, profile, discover, model: getModelVersionMetadata(), mode: 'functional-mvp' });
   }
   if (pathname === '/api/orbit/categories' && req.method === 'GET') {
@@ -681,4 +703,4 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(port, '0.0.0.0', () => console.log(`Riff listening on http://localhost:${port}`));
+server.listen(port, '0.0.0.0', () => console.log(`Orbit+ listening on http://localhost:${port}`));

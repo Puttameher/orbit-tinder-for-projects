@@ -4,46 +4,44 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#08090c" />
-    <title>Orbit · Opportunity discovery</title>
+    <title>Orbit+ · Opportunity discovery</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/app-shell.css" />
     <link rel="stylesheet" href="/app-shell-extra.css" />
     <link rel="stylesheet" href="/app-premium.css" />
+    <link rel="stylesheet" href="/orbit-reference.css?v=orbit-plus-reference-2" />
   </head>
   <body>
     <div class="app-noise" aria-hidden="true"></div>
     <aside class="app-sidebar" aria-label="Primary navigation">
-      <a class="app-brand" href="/" aria-label="Orbit home"><span class="app-mark"><i></i><i></i><i></i></span><strong>orbit<span>.</span></strong></a>
-      <div class="sidebar-label">Your field</div>
-      <nav class="side-nav" aria-label="Opportunity sections">
-        <button class="active" data-screen="discover"><i>✦</i><span>Discover</span><b class="nav-count" id="sidebar-discover-count">06</b></button>
-        <button data-screen="research"><i>◌</i><span>Research papers</span></button>
-        <button data-screen="projects"><i>◈</i><span>Projects</span></button>
-        <button data-screen="opensource"><i>⌘</i><span>Open source</span></button>
+      <a class="app-brand" href="/" aria-label="Orbit home"><span class="app-mark"><i></i><i></i><i></i></span><strong>Orbit<sup>+</sup></strong></a>
+      <div class="sidebar-profile"><span class="user-avatar avatar-sidebar" aria-hidden="true">AM</span></div>
+      <nav class="side-nav" aria-label="Primary application sections">
+        <button class="side-link" id="messages-nav" type="button" aria-label="Messages"><i class="nav-icon">◌</i><span>Messages</span><b class="message-badge">3</b></button>
+        <button class="side-link" id="matches-nav" data-screen="matches" type="button"><i class="nav-icon">♡</i><span>Matches</span><b class="nav-count" id="nav-match-count">0</b></button>
+        <button class="side-link active" id="ai-nav" data-screen="discover" type="button"><i class="nav-icon nav-icon-ai">✦</i><span>AI</span><b class="nav-count nav-count-soft" id="sidebar-discover-count">06</b></button>
       </nav>
-      <div class="sidebar-label sidebar-label-secondary">Your orbit</div>
-      <nav class="side-nav side-nav-secondary" aria-label="Personal sections">
-        <button data-screen="saved"><i>♡</i><span>Saved</span><b class="nav-count" id="sidebar-saved-count">0</b></button>
-        <button data-screen="matches"><i>◎</i><span>Matches</span><b class="nav-count" id="nav-match-count">0</b></button>
-        <button data-screen="profile"><i>◌</i><span>Profile context</span></button>
-      </nav>
-      <button class="add-opportunity-button" id="add-opportunity-button" type="button"><span>＋</span><div><strong>Add an opportunity</strong><small>Start a collaboration</small></div><b>↗</b></button>
-      <div class="sidebar-bottom"><div class="sidebar-status"><i></i><span>Local signal engine<br /><b>online</b></span></div><a href="/" class="sidebar-preview">Back to preview <span>↗</span></a></div>
+      <div class="sidebar-bottom">
+        <button class="add-opportunity-button" id="add-opportunity-button" type="button" aria-label="Add an opportunity" title="Add an opportunity"><span>＋</span><div><strong>Add an opportunity</strong><small>Start a collaboration</small></div><b>↗</b></button>
+        <button class="side-link settings-link" id="settings-nav" data-screen="profile" type="button"><i class="nav-icon">⚙</i><span>Settings</span></button>
+        <span id="sidebar-saved-count" class="sr-only">0</span>
+      </div>
     </aside>
 
     <div class="app-shell">
       <header class="app-topbar">
-        <div class="app-breadcrumb"><span>Orbit</span><i>/</i><b id="screen-label">Discover</b></div>
-        <label class="app-search"><span aria-hidden="true">⌕</span><input id="opportunity-search" type="search" placeholder="Search your opportunity field" autocomplete="off" /><kbd>⌘ K</kbd></label>
-        <div class="app-actions"><button class="command-key" id="command-button" aria-label="Focus search">⌘ K</button><button class="icon-button" id="profile-menu" aria-label="Open profile">AM</button></div>
+        <div class="app-breadcrumb" aria-hidden="true"><span>Orbit</span><i>/</i><b id="screen-label">AI</b></div>
+        <label class="app-search"><span aria-hidden="true" class="search-glyph">⌕</span><input id="opportunity-search" type="search" placeholder="Search projects, skills, topics…" autocomplete="off" /><kbd>⌘ K</kbd></label>
+        <div class="app-actions"><button class="command-key" id="command-button" type="button" aria-label="Focus search">⌘ K</button><button class="notification-button" id="notification-button" type="button" aria-label="Open notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><i></i></button><button class="profile-button" id="profile-menu" type="button" aria-label="Open profile"><span class="user-avatar avatar-top" aria-hidden="true">AM</span><span class="profile-caret" aria-hidden="true">⌄</span></button></div>
       </header>
 
       <main class="app-main">
         <section class="app-screen active" id="discover-screen" aria-labelledby="discover-title">
           <div class="app-heading"><div><span class="eyebrow"><i></i> Your next signal</span><h1 id="discover-title">What pulls you<br /><em>in today?</em></h1><p>One opportunity at a time. Keep what sparks, release what does not.</p></div><div class="orbit-count"><b id="opportunity-count">06</b><span>signals<br />in your field</span></div></div>
           <div class="discover-toolbar"><div><span class="toolbar-label">Curated for you</span><span class="toolbar-muted" id="search-status">All signals · ranked by declared context</span></div><button class="filter-button" id="clear-search" type="button" hidden>Clear search <span>×</span></button></div>
+          <nav class="category-tabs" aria-label="Opportunity categories"><button type="button" data-screen="research">Research papers</button><button type="button" data-screen="projects">Projects</button><button type="button" data-screen="opensource">Open source</button></nav>
           <div class="discover-grid">
             <div class="deck-stage" id="deck-stage">
               <div class="corner-lens lens-left" data-lens-target tabindex="0" role="button" aria-label="Analyze current opportunity with Orbit Lens"><span>✦</span><small>lens</small></div>
@@ -52,14 +50,15 @@
                 <article class="project-card behind-card" aria-hidden="true"><div class="project-art"></div></article>
                 <article class="project-card second-card" aria-hidden="true"><div class="project-art"></div></article>
                 <article class="project-card main-card" id="project-card">
-                  <div class="project-art" id="project-art"><span class="art-kicker" id="project-kicker">PROJECT · PROTOTYPE</span><span class="art-stage" id="project-stage">OPEN SOURCE</span><div class="art-orbit"></div><span class="art-cross art-cross-a"></span><span class="art-cross art-cross-b"></span></div>
-                  <div class="project-content"><div class="project-meta"><span id="project-signal">SHARED PURPOSE</span><span id="project-owner">Maya Rao</span></div><h2 id="project-title">Campus Pantry</h2><p id="project-summary">A dignity-first logistics layer for students who need food support without another form maze.</p><div class="project-tags" id="project-tags"></div><div class="project-card-footer"><span id="project-commitment">4–6 hrs / week</span><span class="drag-label">drag card to analyze <b>↗</b></span></div></div>
+                  <div class="project-art" id="project-art"><div class="art-topline"><span class="project-category" id="project-category"><i></i> RESEARCH</span><div class="art-actions"><button class="project-icon-button" id="project-bookmark-button" type="button" aria-label="Save opportunity"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21z" /></svg></button><button class="project-icon-button" id="project-menu-button" type="button" aria-label="Open opportunity menu">⋮</button></div></div><span class="art-kicker" id="project-kicker">PROJECT · PROTOTYPE</span><span class="art-stage" id="project-stage">OPEN SOURCE</span><div class="art-orbit"></div><span class="art-cross art-cross-a"></span><span class="art-cross art-cross-b"></span><div class="match-score" id="project-match-score" aria-label="92 percent match"><strong>92%</strong><span>Match</span></div></div>
+                  <div class="project-content"><div class="project-meta"><span id="project-signal">SHARED PURPOSE</span><span id="project-owner-meta">Maya Rao</span></div><h2 id="project-title">Open-source AI Research Assistant</h2><p id="project-summary">Build an open-source AI agent that helps researchers discover, read, and understand scientific papers with citations, summaries, and a focus on accurate reasoning.</p><div class="project-tags" id="project-tags"><span>Python</span><span>RAG</span><span>Embeddings</span><span>LLMs</span></div><div class="project-card-footer"><div class="project-owner-row"><span class="owner-avatar" id="project-owner-initials">MR</span><span><b id="project-owner">Maya Rao</b><small id="project-owner-role">research collaborator</small></span></div><div class="project-impact"><span class="impact-glyph">▥</span><span><b id="project-impact-label">High impact</b><small id="project-impact-detail">Good for portfolio</small></span></div><span id="project-commitment">4–6 hrs / week</span><span class="drag-label">drag card to analyze <b>↗</b></span></div></div>
                 </article>
               </div>
+              <div class="deck-navigation" aria-label="Browse opportunities"><button class="deck-arrow previous" id="previous-opportunity-button" type="button" aria-label="Previous opportunity">‹</button><button class="deck-arrow next" id="next-opportunity-button" type="button" aria-label="Next opportunity">›</button></div>
               <div class="swipe-actions" aria-label="Opportunity actions"><button class="swipe-control dismiss" id="pass-button" type="button" aria-label="Dismiss opportunity"><span>×</span><small>dismiss</small></button><button class="swipe-control maybe" id="maybe-button" type="button" aria-label="Mark opportunity maybe"><span>?</span><small>maybe</small></button><button class="swipe-control save" id="save-button" type="button" aria-label="Save opportunity"><span>♡</span><small>save</small></button><button class="swipe-control super-like" id="like-button" type="button" aria-label="Super like opportunity"><span>✦</span><small>super-like</small></button></div>
               <div class="swipe-hint"><span>← dismiss</span><span>drag to explore</span><span>super-like →</span></div>
             </div>
-            <aside class="lens-panel" aria-labelledby="lens-title"><div class="lens-panel-head"><div><span class="eyebrow">Orbit Lens</span><h2 id="lens-title">Make the<br /><em>pull legible.</em></h2></div><span class="agent-state"><i></i><span id="agent-state">ready</span></span></div><div class="lens-copy" id="lens-copy"><span class="lens-glyph">✦</span><strong>Context, not a verdict.</strong><p>Bring a project closer to reveal the overlap, the gap, and one useful next action.</p><button id="analyze-button" type="button">Analyze this signal <span>↗</span></button></div><div class="analysis-result hidden" id="analysis-result"></div><div class="lens-panel-footer"><span>transparent ranking</span><span>local · private</span></div></aside>
+            <aside class="lens-panel" aria-labelledby="lens-title"><div class="lens-panel-head"><div class="lens-bubble"><div class="lens-bubble-label"><span class="lens-orb-dot"></span><span class="eyebrow">Orbit LENS</span></div><h2 id="lens-title">A research project that<br /><em>matches your interests!</em></h2></div><span class="agent-state"><i></i><span id="agent-state">ready</span></span></div><div class="lens-copy" id="lens-copy"><span class="lens-glyph" data-lens-target tabindex="0" role="button" aria-label="Analyze current opportunity with Orbit Lens">✦</span><strong>Context, not a verdict.</strong><p>Bring a project closer to reveal the overlap, the gap, and one useful next action.</p><button id="analyze-button" type="button">Analyze this signal <span>↗</span></button></div><div class="analysis-result hidden" id="analysis-result"></div><div class="lens-panel-footer"><span>transparent ranking</span><span>local · private</span></div></aside>
           </div>
         </section>
 
@@ -91,6 +90,6 @@
 
     <nav class="bottom-nav" id="mobile-bottom-nav" aria-label="Orbit application navigation"><button class="active" data-screen="discover"><i>✦</i><span>Discover</span></button><button data-screen="research"><i>◌</i><span>Research</span></button><button data-screen="projects"><i>◈</i><span>Projects</span></button><button data-screen="opensource"><i>⌘</i><span>Open source</span></button><button data-screen="saved"><i>♡</i><span>Saved</span></button></nav>
     <div class="toast-region" id="toast-region" aria-live="polite"></div>
-    <script type="module" src="/app-shell.js"></script>
+    <script type="module" src="/app-shell.js?v=orbit-plus-reference-2"></script>
   </body>
 </html>

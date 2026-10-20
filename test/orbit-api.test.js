@@ -50,6 +50,15 @@ test.after(async () => {
 });
 
 test('category endpoints and filtering return canonical catalog slices', async () => {
+  const state = await request('/api/orbit/state');
+  assert.equal(state.response.status, 200);
+  const reference = state.body.discover.find((item) => item.id === 'project-arxiv-labs');
+  assert.ok(reference);
+  assert.equal(reference.title, 'Open-source AI Research Assistant');
+  assert.equal(reference.category, 'research-papers');
+  assert.deepEqual(reference.stack, ['Python', 'RAG', 'Embeddings', 'LLMs']);
+  assert.equal(reference.owner.name, 'arxiv-labs');
+
   const categories = await request('/api/orbit/categories');
   assert.equal(categories.response.status, 200);
   assert.deepEqual(categories.body.categories.map((item) => item.id), ['research-papers', 'projects', 'open-source']);

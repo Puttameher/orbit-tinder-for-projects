@@ -60,19 +60,34 @@ async function createOpportunity(event) {
 }
 
 function artClass(project) {
-  const text = [project?.kind, project?.title, project?.kicker, ...(project?.tags || [])].join(' ');
+  const text = [project?.category, project?.kind, project?.title, project?.kicker, ...(project?.tags || [])].join(' ');
   return /climate|water|civic/i.test(text) ? 'climate' : /research|paper|ai|learning/i.test(text) ? 'research' : 'default';
 }
 
 function categoryFor(project) {
+  const explicit = String(project?.category || '').toLowerCase();
+  if (explicit === 'research-papers') return 'research';
+  if (explicit === 'open-source') return 'opensource';
+  if (explicit === 'projects') return 'projects';
   const text = [project?.kind, project?.title, project?.kicker, ...(project?.tags || [])].join(' ');
   if (/research|paper|publication|learning|ai/i.test(text)) return 'research';
-  if (/open source|source available|github|contribution/i.test(`${project?.license || ''} ${text}`)) return 'opensource';
+  if (/open[ -]?source|source available|github|contribution/i.test(`${project?.license || ''} ${text}`)) return 'opensource';
   return 'projects';
 }
 
+function categoryLabel(project) {
+  return { research: 'RESEARCH', opensource: 'OPEN SOURCE', projects: 'PROJECTS' }[categoryFor(project)] || 'PROJECTS';
+}
+
+function matchScore(project) {
+  if (!project) return 0;
+  if (Number.isFinite(Number(project.score))) return Math.max(0, Math.min(100, Math.round(Number(project.score))));
+  const overlap = (project.tags || []).filter((tag) => ['education', 'climate', 'creative tools', 'ai', 'design'].some((interest) => String(tag).toLowerCase().includes(interest))).length;
+  return Math.min(97, 76 + (project.reciprocal ? 10 : 0) + Math.min(6, overlap * 2));
+}
+
 function searchable(project) {
-  return [project.title, project.summary, project.description, project.kicker, project.kind, project.license, project.owner?.name, ...(project.tags || []), ...(project.needs || [])].join(' ').toLowerCase();
+  return [project.title, project.summary, project.description, project.kicker, project.kind, project.category, project.license, project.owner?.name, ...(project.stack || []), ...(project.skills || []), ...(project.tags || []), ...(project.needs || [])].join(' ').toLowerCase();
 }
 
 function visibleDiscover() {
@@ -83,6 +98,7 @@ function visibleDiscover() {
 function renderProject() {
   const project = app.current;
   const card = $('#project-card');
+  resetAnalysis();
   $('#opportunity-count').textContent = String(visibleDiscover().length).padStart(2, '0');
   $('#sidebar-discover-count').textContent = String(app.state?.discover?.length || 0).padStart(2, '0');
   if (!project) {
@@ -90,23 +106,46 @@ function renderProject() {
     $('#project-summary').textContent = app.query ? 'Try a broader search across your opportunity field.' : 'No more opportunities are waiting in this pass.';
     $('#project-kicker').textContent = 'ORBIT · PAUSE';
     $('#project-stage').textContent = 'NO SIGNAL';
+    $('#project-category').innerHTML = '<i></i> NO SIGNAL';
     $('#project-tags').innerHTML = '';
     $('#project-owner').textContent = 'Orbit catalog';
+    $('#project-owner-meta').textContent = 'Orbit catalog';
+    $('#project-owner-role').textContent = 'waiting for the next signal';
+    $('#project-owner-initials').textContent = '—';
+    $('#project-impact-label').textContent = 'No impact yet';
+    $('#project-impact-detail').textContent = 'Keep exploring';
+    $('#project-match-score').style.setProperty('--match-score', '0%');
+    $('#project-match-score strong').textContent = '—';
     $('#project-commitment').textContent = 'keep exploring';
+    $('#lens-title').innerHTML = 'Bring a signal<br /><em>closer to Orbit.</em>';
     card.className = 'project-card main-card';
-    $$('.swipe-control').forEach((button) => { button.disabled = true; });
+    $$('.swipe-control, .project-icon-button').forEach((button) => { button.disabled = true; });
     return;
   }
+  const score = matchScore(project);
+  const owner = project.owner || {};
+  const ownerInitials = owner.initials || String(owner.name || 'Orbit').split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+  const chips = [...(project.stack || project.skills || []), ...(project.tags || [])].filter(Boolean).slice(0, 4);
   $('#project-title').textContent = project.title;
   $('#project-summary').textContent = project.summary;
-  $('#project-kicker').textContent = `${String(project.kind || 'project').toUpperCase()} · ${String(project.stage || 'opportunity').toUpperCase()}`;
+  $('#project-kicker').textContent = project.kicker || `${String(project.kind || 'project').toUpperCase()} · ${String(project.stage || 'opportunity').toUpperCase()}`;
   $('#project-stage').textContent = String(project.license || 'SOURCE VERIFIED').toUpperCase();
+  $('#project-category').innerHTML = `<i></i> ${categoryLabel(project)}`;
   $('#project-signal').textContent = String(project.signal || 'DECLARED CONTEXT').toUpperCase();
-  $('#project-owner').textContent = project.owner?.name || 'Orbit catalog';
+  $('#project-owner').textContent = owner.name || 'Orbit catalog';
+  $('#project-owner-meta').textContent = owner.name || 'Orbit catalog';
+  $('#project-owner-role').textContent = owner.role || (project.createdBy === 'local-user' ? 'community signal' : 'research collaborator');
+  $('#project-owner-initials').textContent = ownerInitials;
+  $('#project-impact-label').textContent = project.impact || (project.reciprocal ? 'High impact' : 'Worth exploring');
+  $('#project-impact-detail').textContent = project.impactDetail || (project.reciprocal ? 'Good for portfolio' : 'A new direction');
   $('#project-commitment').textContent = project.commitment || 'commitment not declared';
-  $('#project-tags').innerHTML = (project.tags || []).slice(0, 3).map((tag) => `<span>${esc(tag)}</span>`).join('');
+  $('#lens-title').innerHTML = categoryFor(project) === 'research' ? 'A research project that<br /><em>matches your interests!</em>' : `A ${categoryLabel(project).toLowerCase()} that<br /><em>matches your interests!</em>`;
+  $('#project-tags').innerHTML = chips.map((tag) => `<span>${esc(tag)}</span>`).join('');
+  $('#project-match-score').style.setProperty('--match-score', `${score}%`);
+  $('#project-match-score').setAttribute('aria-label', `${score} percent match`);
+  $('#project-match-score strong').textContent = `${score}%`;
   $('#project-art').className = `project-art ${artClass(project)}`;
-  $$('.swipe-control').forEach((button) => { button.disabled = false; });
+  $$('.swipe-control, .project-icon-button').forEach((button) => { button.disabled = false; });
 }
 
 function cardMarkup(project, compact = false) {
@@ -143,6 +182,16 @@ function renderProfile() {
   $('#profile-interests').value = (profile.interests || []).join(', ');
   $('#profile-skills').value = (profile.skills || []).join(', ');
   $('#profile-availability').value = profile.availability?.label || profile.availability || '';
+}
+
+function resetAnalysis() {
+  const result = $('#analysis-result');
+  const copy = $('#lens-copy');
+  if (!result || !copy) return;
+  result.classList.add('hidden');
+  result.innerHTML = '';
+  copy.classList.remove('hidden');
+  $('#agent-state').textContent = 'ready';
 }
 
 function switchScreen(screen) {
@@ -219,6 +268,15 @@ function resetCardPosition() {
   $$('.corner-lens').forEach((lens) => lens.classList.remove('active'));
 }
 
+function navigateDeck(step) {
+  const visible = visibleDiscover();
+  if (!visible.length) return;
+  const currentIndex = Math.max(0, visible.findIndex((project) => project.id === app.current?.id));
+  app.current = visible[(currentIndex + step + visible.length) % visible.length];
+  resetCardPosition();
+  renderProject();
+}
+
 function lensContains(clientX, clientY) {
   return $$('[data-lens-target]').some((lens) => { const rect = lens.getBoundingClientRect(); return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom; });
 }
@@ -278,6 +336,12 @@ function bind() {
   $('#clear-search').addEventListener('click', () => { $('#opportunity-search').value = ''; app.query = ''; $('#opportunity-search').dispatchEvent(new Event('input')); $('#opportunity-search').focus(); });
   $('#command-button').addEventListener('click', () => $('#opportunity-search').focus());
   $('#profile-menu').addEventListener('click', () => switchScreen('profile'));
+  $('#notification-button')?.addEventListener('click', () => toast('You are all caught up. New mutual signals will appear here.'));
+  $('#messages-nav')?.addEventListener('click', () => toast('Messages unlock when an opportunity answers your signal.'));
+  $('#previous-opportunity-button')?.addEventListener('click', () => navigateDeck(-1));
+  $('#next-opportunity-button')?.addEventListener('click', () => navigateDeck(1));
+  $('#project-bookmark-button')?.addEventListener('click', (event) => { event.stopPropagation(); swipe('save', 'Saved to your Orbit shortlist.'); });
+  $('#project-menu-button')?.addEventListener('click', (event) => { event.stopPropagation(); toast(app.current ? `${app.current.title} is in your Orbit.` : 'No opportunity is selected.'); });
   $('#add-opportunity-button').addEventListener('click', () => setComposer(true));
   $('#composer-close').addEventListener('click', () => setComposer(false));
   $('#composer-cancel').addEventListener('click', () => setComposer(false));
@@ -287,6 +351,7 @@ function bind() {
     const target = event.target;
     if (event.key === 'Escape') { setComposer(false); if (target.matches('input,textarea,select')) target.blur(); return; }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); $('#opportunity-search').focus(); return; }
+    if (target.matches('input,textarea,select,[contenteditable="true"]')) return;
     if (event.key === 'ArrowLeft') swipe('pass', 'Opportunity dismissed.');
     if (event.key === 'ArrowRight') swipe('like', 'Super-like recorded.');
     if (event.key === ' ') { event.preventDefault(); swipe('save', 'Saved to your Orbit shortlist.'); }

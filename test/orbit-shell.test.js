@@ -11,7 +11,7 @@ test('main Orbit shell exposes the cosmic deck, categories, composer, and AI con
   const script = await readFile(path.join(root, 'public', 'app-shell.js'), 'utf8');
   const css = await readFile(path.join(root, 'public', 'app-shell.css'), 'utf8');
 
-  for (const marker of ['Research papers', 'Projects', 'Open source', 'project-card', 'maybe-button', 'composer-overlay', 'opportunity-form']) {
+  for (const marker of ['Orbit<sup>+</sup>', 'Open-source AI Research Assistant', 'Orbit LENS', 'project-match-score', 'Research papers', 'Projects', 'Open source', 'project-card', 'maybe-button', 'composer-overlay', 'opportunity-form']) {
     assert.ok(html.includes(marker), `missing shell marker: ${marker}`);
   }
   for (const marker of ['/api/orbit/opportunities', 'bindPointerSwipe', 'createOpportunity', 'analyze']) {
