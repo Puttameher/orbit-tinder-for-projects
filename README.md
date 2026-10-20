@@ -8,6 +8,14 @@ Orbit is an AI-powered opportunity discovery platform for projects, research, op
 http://localhost:4173
 ```
 
+The main application is available at:
+
+```text
+http://localhost:4173/app
+```
+
+The landing page now includes **Open application** buttons that redirect directly to this working dashboard.
+
 The default route is the public preview. **Intelligent Artifact (B)** is now the default direction. Compare all three directions, activate Orbit Lens, inspect the functional opportunity analysis, preview the dark application surface, then explicitly approve a direction.
 
 ## Preview flow

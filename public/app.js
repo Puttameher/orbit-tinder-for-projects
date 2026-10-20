@@ -124,6 +124,7 @@ function restoreApproval() {
 }
 
 function bind() {
+  $$('[data-app]').forEach((button) => button.addEventListener('click', () => { window.location.href = button.dataset.app; }));
   $$('[data-scroll]').forEach((button) => button.addEventListener('click', () => scrollToTarget(button.dataset.scroll)));
   $$('.direction-tab').forEach((tab) => tab.addEventListener('click', () => setDirection(tab.dataset.direction)));
   $('#approval-direction').addEventListener('change', (event) => setDirection(event.target.value, false));

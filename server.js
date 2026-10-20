@@ -536,7 +536,7 @@ async function handleApi(req, res, pathname) {
 }
 
 async function serveStatic(res, pathname) {
-  const safe = pathname === '/' ? '/index.html' : pathname;
+  const safe = pathname === '/' ? '/index.html' : pathname === '/app' ? '/app.html' : pathname;
   const filePath = path.normalize(path.join(publicDir, safe));
   if (!filePath.startsWith(publicDir)) return send(res, 403, { error: 'Forbidden' });
   try {
