@@ -1,0 +1,26 @@
+{
+  "mode": "local-demo",
+  "user": { "name": "Aanya Mehta", "handle": "aanya.m", "initials": "AM", "city": "Bengaluru", "onboardingComplete": true },
+  "assets": [],
+  "preferences": [
+    { "id": "pref-style-neutral", "scope": "styling", "key": "palette", "label": "Quiet neutrals", "value": "oat, charcoal, washed olive", "strength": 0.86, "confidence": 0.88, "evidenceCount": 4, "status": "active", "source": "4 saved outfits", "updatedAt": "2026-10-17T12:00:00.000Z" },
+    { "id": "pref-style-relaxed", "scope": "styling", "key": "silhouette", "label": "Relaxed structure", "value": "clean lines with room to move", "strength": 0.78, "confidence": 0.8, "evidenceCount": 3, "status": "active", "source": "3 accepted suggestions", "updatedAt": "2026-10-18T12:00:00.000Z" },
+    { "id": "pref-style-sneakers", "scope": "styling", "key": "footwear", "label": "Simple sneakers", "value": "low-profile sneakers over loud shoes", "strength": 0.7, "confidence": 0.76, "evidenceCount": 3, "status": "active", "source": "3 outfit saves", "updatedAt": "2026-10-16T12:00:00.000Z" },
+    { "id": "pref-social-natural", "scope": "social", "key": "edit", "label": "Natural texture", "value": "preserve natural skin texture, subtle warmth", "strength": 0.91, "confidence": 0.93, "evidenceCount": 5, "status": "active", "source": "5 approved edits", "updatedAt": "2026-10-19T12:00:00.000Z" },
+    { "id": "pref-social-copy", "scope": "social", "key": "caption", "label": "Short captions", "value": "lowercase, observant, under 12 words", "strength": 0.74, "confidence": 0.82, "evidenceCount": 4, "status": "active", "source": "4 caption choices", "updatedAt": "2026-10-18T12:00:00.000Z" },
+    { "id": "pref-social-minimal", "scope": "social", "key": "layout", "label": "Minimal overlays", "value": "one quiet type treatment, generous negative space", "strength": 0.69, "confidence": 0.78, "evidenceCount": 3, "status": "active", "source": "3 layout revisions", "updatedAt": "2026-10-15T12:00:00.000Z" }
+  ],
+  "feedbackLedger": [],
+  "generations": [],
+  "savedExamples": [
+    { "id": "saved-1", "type": "outfit", "title": "Sunday in the city", "subtitle": "relaxed · neutral · everyday", "visual": "look-sunday", "savedAt": "2026-10-18T10:00:00.000Z", "tags": ["styling", "neutral"] },
+    { "id": "saved-2", "type": "content", "title": "A quiet afternoon", "subtitle": "carousel · natural warmth", "visual": "content-afternoon", "savedAt": "2026-10-16T10:00:00.000Z", "tags": ["social", "travel"] },
+    { "id": "saved-3", "type": "outfit", "title": "Soft structure", "subtitle": "college · olive · sneakers", "visual": "look-olive", "savedAt": "2026-10-12T10:00:00.000Z", "tags": ["styling", "olive"] }
+  ],
+  "activity": [
+    { "id": "ev-act-1", "kind": "learned", "title": "Evorin learned: natural texture", "detail": "From 5 approved edits in travel photos", "time": "Yesterday" },
+    { "id": "ev-act-2", "kind": "saved", "title": "Saved Soft structure", "detail": "A styling result for college", "time": "3 days ago" },
+    { "id": "ev-act-3", "kind": "created", "title": "Created A quiet afternoon", "detail": "Instagram carousel · 4 frames", "time": "4 days ago" }
+  ],
+  "exports": []
+}

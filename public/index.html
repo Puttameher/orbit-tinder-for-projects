@@ -3,99 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#101723" />
-    <title>TraceForm · Make signal usable</title>
+    <meta name="theme-color" content="#f0ede5" />
+    <title>Evorin · Your taste, made useful</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div class="app-shell">
-      <aside class="sidebar" aria-label="Primary navigation">
-        <div class="brand-lockup">
-          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
-          <div><strong>traceform</strong><small>your signal, with receipts</small></div>
-        </div>
-        <div class="sidebar-rule"></div>
-        <div class="workspace-label">Workspace</div>
-        <nav class="nav-stack">
-          <button class="nav-item active" data-view="overview"><span class="nav-glyph">◈</span>Command center</button>
-          <button class="nav-item" data-view="inbox"><span class="nav-glyph">⌁</span>Inbox <b id="inbox-count">3</b></button>
-          <button class="nav-item" data-view="reminders"><span class="nav-glyph">◷</span>Reminders <b id="reminder-count">1</b></button>
-          <button class="nav-item" data-view="notes"><span class="nav-glyph">✎</span>Personal notebook</button>
-          <button class="nav-item" data-view="skills"><span class="nav-glyph">✦</span>Skill growth</button>
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-orbit"><i></i><i></i><i></i></span><span><strong>evorin</strong><small>your taste, made useful</small></span></div>
+        <div class="side-section-label">Workspace</div>
+        <nav class="nav-stack" aria-label="Main navigation">
+          <button class="nav-item active" data-view="home"><span>⌂</span>Home</button>
+          <button class="nav-item" data-view="style"><span>✦</span>Style me</button>
+          <button class="nav-item" data-view="create"><span>▧</span>Create</button>
+          <button class="nav-item" data-view="library"><span>▱</span>My library</button>
+          <button class="nav-item" data-view="taste"><span>◌</span>My taste</button>
         </nav>
-        <div class="sidebar-spacer"></div>
-        <div class="bridge-card">
-          <div class="bridge-orbit"><i></i><i></i><i></i></div>
-          <div><span class="eyebrow">MCP bridge</span><strong>Let other tools ask safely.</strong></div>
-          <button class="text-button" data-view="mcp">Open bridge <span>↗</span></button>
+        <div class="sidebar-bottom">
+          <div class="privacy-note"><span class="privacy-icon">⌾</span><div><b>Private by default</b><small>Your taste stays yours.</small></div></div>
+          <div class="profile"><span class="avatar">AM</span><div><b>Aanya Mehta</b><small>Personal space</small></div><span class="more">···</span></div>
         </div>
-        <button class="profile-button" id="profile-button"><span class="avatar">MR</span><span><strong>Maya Rao</strong><small>Builder mode</small></span><span class="dots">•••</span></button>
       </aside>
 
-      <main class="main-canvas">
-        <header class="topbar">
-          <div class="breadcrumb"><span>TraceForm</span><span>/</span><strong id="view-label">Command center</strong></div>
-          <div class="top-actions">
-            <button class="icon-button" id="notification-button" aria-label="Enable notifications" title="Enable notifications">♧<span class="notification-dot"></span></button>
-            <button class="connect-button" id="connect-button"><span class="gmail-glyph">M</span><span id="connect-label">Connect Gmail</span></button>
-          </div>
-        </header>
+      <main class="main">
+        <header class="topbar"><div class="crumb"><span>evorin</span><i>/</i><b id="page-name">Home</b></div><div class="topbar-actions"><button class="round-button" id="notifications" title="Notifications">♧<i></i></button><button class="profile-chip"><span class="mini-avatar">AM</span><span>Aanya</span><span class="chevron">⌄</span></button></div></header>
 
-        <section id="overview-view" class="view active-view">
-          <div class="hero-row">
-            <div class="hero-copy">
-              <div class="eyebrow accent-eyebrow"><span class="pulse"></span> Tuesday, October 20 · 09:41</div>
-              <h1>Make signal<br /><em>usable.</em></h1>
-              <p class="hero-lede">TraceForm turns the loose threads in your inbox into <strong>reviewable next actions</strong>, personal context, and proof that you are getting better.</p>
-              <div class="hero-actions"><button class="primary-button" data-view="inbox">Review inbox <span>↗</span></button><button class="quiet-button" data-view="notes">Open notebook</button></div>
-            </div>
-            <div class="signal-trace" aria-label="Signal trace: message to reminder to growth">
-              <div class="trace-heading"><span>Live signal trace</span><span class="trace-status"><i></i> private by default</span></div>
-              <div class="trace-line"><span></span><span></span><span></span></div>
-              <div class="trace-node node-message"><span class="node-icon">⌁</span><div><small>INBOX SIGNAL</small><strong>Frontier Fellowship</strong><p>“Upload the final project note…”</p></div><b>09:12</b></div>
-              <div class="trace-connector"><span>agent reads intent</span><i></i></div>
-              <div class="trace-node node-reminder"><span class="node-icon">◷</span><div><small>PROPOSED COMMITMENT</small><strong>Upload project note</strong><p>Friday, Oct 23 · 5:00 PM</p></div><b>94%</b></div>
-              <div class="trace-connector"><span>you confirm</span><i></i></div>
-              <div class="trace-node node-skill"><span class="node-icon">✦</span><div><small>GROWTH EVIDENCE</small><strong>Technical communication</strong><p>One more receipt in the graph</p></div><b>+4</b></div>
-            </div>
-          </div>
-
-          <div class="section-heading"><div><span class="eyebrow">Your desk today</span><h2>Nothing important<br />should live only in your head.</h2></div><span class="section-note">Updated just now</span></div>
-          <div class="dashboard-grid">
-            <article class="surface attention-surface">
-              <div class="surface-heading"><div><span class="eyebrow">Attention queue</span><h3 id="attention-title">1 commitment needs you</h3></div><button class="circle-arrow" data-view="reminders">↗</button></div>
-              <div class="attention-item"><div class="attention-mark">!</div><div><strong>Upload final project note</strong><p>Frontier Fellowship · due Friday</p></div><span class="confidence-pill">94% clear</span></div>
-              <button class="inline-link" data-view="reminders">Open review queue <span>→</span></button>
-            </article>
-            <article class="surface notebook-surface">
-              <div class="surface-heading"><div><span class="eyebrow">Personal notebook</span><h3>Keep the thinking<br />that made the work.</h3></div><button class="circle-arrow" data-view="notes">↗</button></div>
-              <p class="note-preview">“Track precision separately from completion rate. The failure mode I want to bring…”</p>
-              <div class="note-footer"><span class="tag">agents</span><span>edited yesterday</span></div>
-            </article>
-            <article class="surface growth-surface">
-              <div class="surface-heading"><div><span class="eyebrow">Self-improving loop</span><h3>Evidence, not vibes.</h3></div><button class="circle-arrow" data-view="skills">↗</button></div>
-              <div class="growth-meter"><div class="meter-label"><strong>Agent orchestration</strong><span id="top-skill-progress">68%</span></div><div class="meter"><i id="top-skill-meter" style="width:68%"></i></div></div>
-              <div class="growth-meta"><span><b id="top-skill-streak">4</b> day streak</span><span>2 receipts this week</span></div>
-            </article>
-          </div>
-          <div class="activity-section"><div class="section-heading compact"><div><span class="eyebrow">Recent movement</span><h2>What changed while you were building.</h2></div><button class="quiet-button" data-view="mcp">View audit trail</button></div><div class="activity-list" id="activity-list"></div></div>
+        <section id="home-view" class="view active-view">
+          <div class="home-hero"><div class="hero-text"><span class="eyebrow warm"><i></i> Tuesday, October 20 · Bengaluru</span><h1>Your taste is<br /><em>already speaking.</em></h1><p>Evorin listens to what you choose, change, and keep. Then it makes the next recommendation feel a little more like you.</p><div class="hero-actions"><button class="button dark" data-view="style">Style an outfit <span>↗</span></button><button class="button text" data-view="create">Make something <span>↗</span></button></div></div><div class="hero-art"><div class="art-sun"></div><div class="art-shadow"></div><div class="art-shape art-shape-one"></div><div class="art-shape art-shape-two"></div><div class="art-caption"><span>your visual language</span><b>soft structure / quiet color</b></div><div class="hero-note"><span>✦</span><span><b>6 signals</b><small>made your space more you</small></span></div></div></div>
+          <div class="section-top"><div><span class="eyebrow">Start with what you want</span><h2>Make something that feels like <em>you.</em></h2></div><span class="small-note">No prompt gymnastics required.</span></div>
+          <div class="quick-grid"><button class="quick-card quick-style" data-view="style"><span class="quick-number">01</span><span class="quick-icon">◒</span><strong>Style me</strong><p>Upload a look. Get combinations that understand your proportions and your palette.</p><span class="quick-arrow">↗</span></button><button class="quick-card quick-create" data-view="create"><span class="quick-number">02</span><span class="quick-icon">▧</span><strong>Create a post</strong><p>Turn a handful of photos into a caption, sequence, and visual direction you would actually share.</p><span class="quick-arrow">↗</span></button><button class="quick-card quick-taste" data-view="taste"><span class="quick-number">03</span><span class="quick-icon">◌</span><strong>See what I know</strong><p>Inspect the signals Evorin has learned, correct them, or start the memory fresh.</p><span class="quick-arrow">↗</span></button></div>
+          <div class="split-heading"><div><span class="eyebrow">A living point of view</span><h2>Recent work, still warm.</h2></div><button class="button text" data-view="library">Open library <span>→</span></button></div>
+          <div class="recent-strip" id="recent-strip"></div>
         </section>
 
-        <section id="inbox-view" class="view">
-          <div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> Connected signal</span><h1>Inbox, without<br /><em>the fog.</em></h1><p>TraceForm watches for commitments and learning signals. It never turns a sentence into a task without showing you the receipt.</p></div><button class="primary-button" id="sync-button">Sync now <span>↻</span></button></div>
-          <div class="inbox-layout"><div class="thread-list" id="thread-list"></div><div class="thread-detail" id="thread-detail"><div class="empty-detail"><span>⌁</span><h3>Select a thread</h3><p>See the message, run the agent, and keep the evidence connected.</p></div></div></div>
-        </section>
+        <section id="style-view" class="view"><div class="page-head"><div><span class="eyebrow warm"><i></i> Personal styling studio</span><h1>Get dressed<br /><em>like yourself.</em></h1><p>Bring one item, a mirror selfie, or the outfit you cannot quite place. Evorin will work from your taste, not a trend board.</p></div><div class="head-flag"><span>style memory</span><b>3 active signals</b></div></div><div class="studio-grid"><div class="upload-panel"><div class="panel-label"><span class="eyebrow">01 · Bring a visual</span><span id="style-upload-status">Optional metadata-only demo</span></div><div class="dropzone" id="style-dropzone"><input type="file" id="style-file" accept="image/jpeg,image/png,image/webp" /><span class="upload-ring">＋</span><strong>Drop an outfit here</strong><small>JPEG, PNG, or WebP · up to 10 MB</small><button class="button outline" type="button" id="style-browse">Choose from device</button></div><div class="selected-preview" id="style-preview"></div></div><div class="control-panel"><span class="eyebrow">02 · Set the feeling</span><h3>Where are you going?</h3><div class="choice-grid" id="occasion-choices"><button class="choice active" data-occasion="everyday">Everyday</button><button class="choice" data-occasion="college">College</button><button class="choice" data-occasion="party">Dinner out</button><button class="choice" data-occasion="formal">A little formal</button></div><span class="eyebrow control-eyebrow">The taste I will use</span><div class="taste-pills"><span>quiet neutrals</span><span>relaxed structure</span><span>simple sneakers</span></div><button class="button dark wide" id="style-generate">Read my look <span>✦</span></button><p class="microcopy">Recommendations are generated from your selected signals. You can always see why.</p></div></div><div class="result-section" id="style-result"></div></section>
 
-        <section id="reminders-view" class="view"><div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> Review before action</span><h1>Your next<br /><em>moves.</em></h1><p>These are proposals, not commands. Confirm them, reshape them, or let them go.</p></div><div class="filter-tabs"><button class="active" data-filter="all">All</button><button data-filter="upcoming">Upcoming</button><button data-filter="completed">Done</button></div></div><div class="reminders-board" id="reminders-board"></div></section>
+        <section id="create-view" class="view"><div class="page-head"><div><span class="eyebrow warm"><i></i> Visual story studio</span><h1>Make the moment<br /><em>shareable.</em></h1><p>Choose a few photos. Evorin will find the rhythm, write in your tone, and leave every final decision with you.</p></div><div class="head-flag"><span>social memory</span><b>natural texture · short copy</b></div></div><div class="create-layout"><div class="create-upload"><div class="panel-label"><span class="eyebrow">01 · Choose your frames</span><span id="create-count">0 selected</span></div><div class="multi-dropzone" id="create-dropzone"><input type="file" id="create-files" accept="image/jpeg,image/png,image/webp" multiple /><div class="stack-icon"><span></span><span></span><span>＋</span></div><strong>Drop the day here</strong><small>Upload up to 12 photos · the more context, the better</small><button class="button outline" type="button" id="create-browse">Choose photos</button></div><div class="thumb-grid" id="create-preview"></div></div><div class="control-panel content-controls"><span class="eyebrow">02 · Choose an output</span><h3>What are we making?</h3><div class="format-options" id="format-options"><button class="format-option active" data-format="Instagram carousel"><span>▤</span><b>Carousel</b><small>4–8 frames</small></button><button class="format-option" data-format="Instagram Story"><span>▥</span><b>Story draft</b><small>3–5 frames</small></button><button class="format-option" data-format="WhatsApp Status"><span>▦</span><b>Status</b><small>1–3 frames</small></button></div><span class="eyebrow control-eyebrow">Visual direction</span><div class="direction-options"><button class="direction active" data-direction="natural warmth">Natural warmth</button><button class="direction" data-direction="quiet editorial">Quiet editorial</button><button class="direction" data-direction="sunlit candid">Sunlit candid</button></div><button class="button dark wide" id="content-generate">Compose the story <span>✦</span></button><p class="microcopy">The first pass is a package, not a publish button. Edit everything before you share.</p></div></div><div class="result-section" id="content-result"></div></section>
 
-        <section id="notes-view" class="view"><div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> A private surface</span><h1>Keep the<br /><em>thread.</em></h1><p>Not everything needs to become a task. Save the context, questions, and sharp edges that make your work yours.</p></div><button class="primary-button" id="new-note-button">New note <span>＋</span></button></div><div class="notes-layout"><div class="notes-list" id="notes-list"></div><form class="note-composer" id="note-form"><div class="composer-top"><span class="eyebrow">New thought</span><span class="save-state" id="save-state">Local only</span></div><input name="title" placeholder="Give this thought a name" required /><textarea name="body" placeholder="What is worth remembering?" required></textarea><div class="composer-bottom"><input name="tags" placeholder="tags, separated by commas" /><button class="primary-button" type="submit">Save note <span>↗</span></button></div></form></div></section>
+        <section id="library-view" class="view"><div class="page-head library-head"><div><span class="eyebrow warm"><i></i> Your visual library</span><h1>Keep the good<br /><em>stuff close.</em></h1><p>Saved outfits, approved edits, and the examples that taught Evorin what you mean.</p></div><div class="library-filters"><button class="active" data-library-filter="all">All</button><button data-library-filter="outfit">Outfits</button><button data-library-filter="content">Content</button></div></div><div class="library-grid" id="library-grid"></div></section>
 
-        <section id="skills-view" class="view"><div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> Personalized growth</span><h1>Get better<br /><em>on purpose.</em></h1><p>TraceForm turns completed work into visible evidence. You decide what counts. The agent only helps connect the dots.</p></div><div class="skill-summary"><strong id="skill-summary-count">3</strong><span>active skills<br />in your graph</span></div></div><div class="skills-layout"><div class="skill-list" id="skill-list"></div><aside class="evidence-panel"><span class="eyebrow">How the loop works</span><h3>Do the work.<br />Keep the receipt.</h3><div class="loop-steps"><div><span>01</span><p><b>Notice</b><small>Agent spots a signal in your real work.</small></p></div><div><span>02</span><p><b>Choose</b><small>You approve what deserves attention.</small></p></div><div><span>03</span><p><b>Compound</b><small>Completed work becomes evidence.</small></p></div></div><button class="quiet-button" data-view="reminders">See your evidence <span>↗</span></button></aside></div></section>
-
-        <section id="mcp-view" class="view"><div class="page-intro"><div><span class="eyebrow accent-eyebrow"><span class="pulse"></span> Local, scoped, observable</span><h1>The bridge<br /><em>stays narrow.</em></h1><p>Give your other tools a useful question, not the keys to your life. Every call is allowlisted, logged, and easy to revoke.</p></div><div class="bridge-status"><i></i><span><b>Local MCP ready</b><small>Read-only by default</small></span></div></div><div class="mcp-layout"><div class="mcp-console"><div class="console-bar"><span><i></i><i></i><i></i></span><span>traceform / mcp</span><span>localhost</span></div><div class="console-body"><div class="console-line"><span class="prompt">$</span><span>search_threads</span><span class="arg">query: “fellowship”</span></div><div class="console-line result"><span class="check">✓</span><span>1 scoped result returned</span></div><div class="console-result"><span class="result-icon">⌁</span><div><b>Frontier Fellowship application</b><small>Priya Menon · source thread</small></div><span class="result-lock">read-only</span></div><div class="console-line muted"><span class="prompt">$</span><span>awaiting your next question…</span></div></div></div><div class="mcp-controls"><div class="tool-legend"><span class="eyebrow">Available tools</span><div id="tool-list"></div></div><div class="mcp-run"><span class="eyebrow">Try a scoped call</span><div class="run-row"><select id="mcp-tool"><option value="search_threads">search_threads</option><option value="list_reminders">list_reminders</option><option value="list_notes">list_notes</option><option value="get_skill_progress">get_skill_progress</option></select><button class="primary-button" id="run-mcp-button">Run <span>↗</span></button></div><input id="mcp-query" placeholder="search term, e.g. fellowship" /><pre id="mcp-result">Results will appear here.</pre></div></div></div><div class="audit-section"><div class="section-heading compact"><div><span class="eyebrow">Audit trail</span><h2>Trust is a feature.</h2></div></div><div class="audit-list" id="audit-list"></div></div></section>
+        <section id="taste-view" class="view"><div class="page-head"><div><span class="eyebrow warm"><i></i> Your preference engine</span><h1>A point of view,<br /><em>with receipts.</em></h1><p>Evorin keeps fashion and social preferences separate. You can inspect, edit, and reset every learned signal.</p></div><button class="button outline" id="reset-taste">Reset learned taste</button></div><div class="taste-layout"><div><div class="taste-section-head"><div><span class="eyebrow">Style signals</span><h2>How you like to wear things.</h2></div><span class="signal-count" id="style-signal-count">3 signals</span></div><div class="preference-list" id="style-preferences"></div><div class="taste-section-head second"><div><span class="eyebrow">Social signals</span><h2>How you like to be seen.</h2></div><span class="signal-count" id="social-signal-count">3 signals</span></div><div class="preference-list" id="social-preferences"></div></div><aside class="taste-side"><div class="taste-orbit"><span></span><span></span><span></span><b>your taste<br />is a moving<br />thing</b></div><div class="learning-log"><span class="eyebrow">Learning log</span><div id="learning-log"></div></div></aside></div></section>
       </main>
     </div>
     <div class="toast-region" id="toast-region" aria-live="polite"></div>

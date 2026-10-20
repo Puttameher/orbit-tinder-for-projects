@@ -1,22 +1,21 @@
-# TraceForm design system
+# Evorin design system
 
 ## Visual direction
-An evening workbench for a student builder: warm paper under a cool monitor, with electric saffron marks for attention and a deep ink field for focused work. The memorable element is the live "signal trace" that visualizes how an email becomes a reminder, then evidence of growth.
+An editorial visual studio in late afternoon light: warm paper, dark ink, sun-faded peach, and olive. The memorable element is the quiet orbit motif, showing taste as a living constellation rather than a fixed personality score.
 
 ## Palette
-- Ink: `#101723`
-- Paper: `#f4f1e9`
-- Fog: `#e7e3d9`
-- Signal saffron: `#f4b942`
-- Mint evidence: `#93d8bd`
-- Coral warning: `#ed8068`
-- Muted blue: `#93a7bc`
+- Canvas: `#f0ede5`
+- Ink: `#172127`
+- Paper: `#f8f6f0`
+- Peach: `#e8886f`
+- Gold: `#e6b253`
+- Sage: `#a6b8a0`
 
 ## Type
-Use `DM Sans` for interface copy and `Space Grotesk` for display figures and system labels. The combination is technical but not terminal-coded.
+Use `DM Sans` for interface copy, `Space Grotesk` for compact system labels, and `Fraunces` for editorial result titles and emotional emphasis.
 
 ## Principles
-- Show provenance where decisions happen.
-- Use dense, asymmetric layouts for working surfaces and generous spacing for reflection surfaces.
-- Prefer one large working pane plus quiet secondary context over repeated card grids.
-- Motion should reveal transformation, not decorate it.
+- Show the visual result first, then the reasoning.
+- Use editorial asymmetry and full-bleed imagery instead of generic dashboard cards.
+- Keep styling and social creation in separate preference lanes.
+- Motion should make selection, feedback, and transformation feel tangible.

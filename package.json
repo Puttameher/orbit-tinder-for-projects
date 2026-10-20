@@ -1,8 +1,8 @@
 {
-  "name": "traceform",
+  "name": "evorin",
   "version": "0.1.0",
   "private": true,
-  "description": "TraceForm, a provenance-first personal agent for commitments, notes, and skill growth.",
+  "description": "Evorin, a visual-first personal preference engine for styling and social creation.",
   "type": "module",
   "scripts": {
     "start": "node server.js",

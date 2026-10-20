@@ -1,19 +1,20 @@
-# TraceForm product brief
+# Evorin product brief
 
 ## Register
 product
 
 ## Product purpose
-TraceForm turns scattered personal signals into calm, reviewable next actions. It connects a Gmail-style inbox, a personal notebook, reminders, and evidence-backed skill growth without pretending that automation is certainty.
+Evorin learns how a person chooses, edits, saves, and rejects visual work. It turns that taste memory into styling recommendations and editable social content packages without making the user explain their preferences again.
 
 ## Users
-Students, early-career builders, and busy knowledge workers who want an agent to notice commitments and learning opportunities without silently making decisions for them.
+Visual-first people who want useful AI that reflects their actual choices, including personal-style enthusiasts, social creators, and everyday users.
 
 ## Tone
 Grounded, capable, and human. The product should feel like an intelligent desk instrument, not a chatbot or an enterprise admin panel.
 
 ## Non-negotiables
-- Every extracted reminder shows its source quote and confidence.
-- User-authored notes stay distinct from agent observations.
-- Agent writes are review-first and reversible.
-- MCP access is narrow, visible, and auditable.
+- Styling and social preferences remain task-scoped.
+- Every recommendation shows the signals used to ground it.
+- Feedback only changes taste memory after repeated evidence.
+- User reviews every generated caption, layout, and export.
+- Private media is never publicly accessible by default.
