@@ -1,8 +1,8 @@
 {
-  "name": "evorin",
+  "name": "riff",
   "version": "0.1.0",
   "private": true,
-  "description": "Evorin, a visual-first personal preference engine for styling and social creation.",
+  "description": "Riff, a premium project discovery workspace with transparent agentic fit.",
   "type": "module",
   "scripts": {
     "start": "node server.js",

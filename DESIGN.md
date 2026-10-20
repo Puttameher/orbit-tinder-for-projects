@@ -1,21 +1,21 @@
-# Evorin design system
+# Riff design system
 
 ## Visual direction
-An editorial visual studio in late afternoon light: warm paper, dark ink, sun-faded peach, and olive. The memorable element is the quiet orbit motif, showing taste as a living constellation rather than a fixed personality score.
+An observatory for ideas at night: deep moss-black, bone, acid lime, coral, and a sparse radar grid. The memorable element is the orbit motif, where projects drift around a quiet center until one pulls closer.
 
 ## Palette
-- Canvas: `#f0ede5`
-- Ink: `#172127`
-- Paper: `#f8f6f0`
-- Peach: `#e8886f`
-- Gold: `#e6b253`
-- Sage: `#a6b8a0`
+- Night: `#111719`
+- Bone: `#eeeae0`
+- Paper: `#f5f2ea`
+- Lime: `#dfff64`
+- Coral: `#ff907a`
+- Gold: `#e6b353`
 
 ## Type
-Use `DM Sans` for interface copy, `Space Grotesk` for compact system labels, and `Fraunces` for editorial result titles and emotional emphasis.
+Use `DM Sans` for interface copy and `Space Grotesk` for display and system labels. Keep the type geometric and compressed so the project cards feel like instruments, not dashboards.
 
 ## Principles
-- Show the visual result first, then the reasoning.
-- Use editorial asymmetry and full-bleed imagery instead of generic dashboard cards.
-- Keep styling and social creation in separate preference lanes.
-- Motion should make selection, feedback, and transformation feel tangible.
+- Show one project at a time, with enough context to feel the project.
+- Use asymmetry, depth, and radial motion instead of a grid of identical cards.
+- Keep the agent in a side rail, not as a full-screen chatbot.
+- Motion should communicate pull, match, and reversibility.

@@ -14,12 +14,14 @@ import {
   validateSocialContentPackage,
   validateStyleRecommendation
 } from './lib/evorin.js';
+import { createRemixPlan, draftIntroduction, explainProjectFit } from './lib/rally.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
 const dataDir = path.join(__dirname, 'data');
 const statePath = path.join(dataDir, 'state.json');
 const evorinStatePath = path.join(dataDir, 'evorin-state.json');
+const rallyStatePath = path.join(dataDir, 'rally-state.json');
 const publicDir = path.join(__dirname, 'public');
 
 async function readJson(file) {
@@ -52,6 +54,20 @@ async function getEvorinState() {
 async function saveEvorinState(state) {
   await mkdir(dataDir, { recursive: true });
   await writeFile(evorinStatePath, JSON.stringify(state, null, 2));
+}
+
+async function getRallyState() {
+  if (!existsSync(rallyStatePath)) {
+    await mkdir(dataDir, { recursive: true });
+    const seed = await readJson(path.join(dataDir, 'rally-seed.json'));
+    await writeFile(rallyStatePath, JSON.stringify(seed, null, 2));
+  }
+  return readJson(rallyStatePath);
+}
+
+async function saveRallyState(state) {
+  await mkdir(dataDir, { recursive: true });
+  await writeFile(rallyStatePath, JSON.stringify(state, null, 2));
 }
 
 function send(res, status, payload, type = 'application/json') {
@@ -263,6 +279,64 @@ async function handleEvorinApi(req, res, pathname) {
   return send(res, 404, { error: 'Evorin route not found' });
 }
 
+function rallyActivity(state, title, detail, kind = 'system') {
+  state.activity.unshift({ id: randomUUID(), title, detail, kind, time: 'Just now' });
+  state.activity = state.activity.slice(0, 12);
+}
+
+async function handleRallyApi(req, res, pathname) {
+  const state = await getRallyState();
+  if (pathname === '/api/rally/state' && req.method === 'GET') {
+    const swiped = new Set(state.swipes.map((item) => item.projectId));
+    const discover = state.projects.filter((project) => !swiped.has(project.id));
+    return send(res, 200, { ...state, discover });
+  }
+  if (pathname === '/api/rally/swipe' && req.method === 'POST') {
+    const input = await body(req);
+    const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project || !['like', 'pass', 'save'].includes(input.decision)) return send(res, 400, { error: 'Choose a project and a like, pass, or save decision.' });
+    state.swipes = state.swipes.filter((item) => item.projectId !== project.id);
+    state.swipes.push({ projectId: project.id, decision: input.decision, createdAt: new Date().toISOString() });
+    let match = null;
+    if (input.decision === 'save') {
+      if (!state.saved.includes(project.id)) state.saved.unshift(project.id);
+      rallyActivity(state, `Saved ${project.title}`, 'It is waiting in your shortlist', 'save');
+    } else if (input.decision === 'like' && project.reciprocal) {
+      match = state.matches.find((item) => item.projectId === project.id) || { id: randomUUID(), projectId: project.id, status: 'new', createdAt: new Date().toISOString() };
+      if (!state.matches.some((item) => item.id === match.id)) state.matches.unshift(match);
+      rallyActivity(state, `You matched with ${project.owner.name}`, project.title, 'match');
+    } else rallyActivity(state, input.decision === 'like' ? `You liked ${project.title}` : `You passed on ${project.title}`, project.signal, input.decision === 'like' ? 'like' : 'pass');
+    await saveRallyState(state);
+    return send(res, 200, { decision: input.decision, projectId: project.id, match, nextProjectId: state.projects.find((item) => !state.swipes.some((swipe) => swipe.projectId === item.id))?.id || null });
+  }
+  const projectMatch = pathname.match(/^\/api\/rally\/projects\/([^/]+)\/fit$/);
+  if (projectMatch && req.method === 'POST') {
+    const project = state.projects.find((item) => item.id === projectMatch[1]);
+    if (!project) return send(res, 404, { error: 'Project not found.' });
+    const fit = explainProjectFit(project, state.user);
+    const run = { id: randomUUID(), projectId: project.id, type: 'fit', fit, createdAt: new Date().toISOString(), model: 'transparent-local-agent' };
+    state.agentRuns.unshift(run); rallyActivity(state, `Fit read: ${fit.score}%`, project.title, 'agent'); await saveRallyState(state); return send(res, 200, run);
+  }
+  if (pathname === '/api/rally/save' && req.method === 'POST') {
+    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project) return send(res, 404, { error: 'Project not found.' });
+    if (!state.saved.includes(project.id)) state.saved.unshift(project.id);
+    rallyActivity(state, `Saved ${project.title}`, 'It is waiting in your shortlist', 'save'); await saveRallyState(state); return send(res, 200, { saved: state.saved });
+  }
+  if (pathname === '/api/rally/remix' && req.method === 'POST') {
+    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project) return send(res, 404, { error: 'Project not found.' });
+    const remix = createRemixPlan(project, state.user); state.remixes.unshift(remix); rallyActivity(state, `Remix started: ${project.title}`, 'A separate fork brief was created', 'remix'); await saveRallyState(state); return send(res, 201, { remix });
+  }
+  if (pathname === '/api/rally/introduction' && req.method === 'POST') {
+    const input = await body(req); const project = state.projects.find((item) => item.id === input.projectId);
+    if (!project) return send(res, 404, { error: 'Project not found.' });
+    const fit = explainProjectFit(project, state.user); const draft = draftIntroduction(project, fit, state.user); const run = { id: randomUUID(), projectId: project.id, draft, createdAt: new Date().toISOString(), sent: false };
+    state.agentRuns.unshift({ ...run, type: 'introduction' }); await saveRallyState(state); return send(res, 200, run);
+  }
+  return send(res, 404, { error: 'Riff route not found' });
+}
+
 async function handleApi(req, res, pathname) {
   const state = await getState();
   if (pathname === '/api/state' && req.method === 'GET') return send(res, 200, state);
@@ -375,6 +449,7 @@ async function serveStatic(res, pathname) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    if (url.pathname.startsWith('/api/rally/')) return handleRallyApi(req, res, url.pathname);
     if (url.pathname.startsWith('/api/evorin/')) return handleEvorinApi(req, res, url.pathname);
     if (jsonRoute(url.pathname, req.method)) return handleApi(req, res, url.pathname);
     return serveStatic(res, url.pathname);
@@ -384,4 +459,4 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(port, '0.0.0.0', () => console.log(`Evorin listening on http://localhost:${port}`));
+server.listen(port, '0.0.0.0', () => console.log(`Riff listening on http://localhost:${port}`));

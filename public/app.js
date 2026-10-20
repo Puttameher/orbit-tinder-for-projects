@@ -1,135 +1,72 @@
-const app = { state: null, view: 'home', styleAsset: null, styleOccasion: 'everyday', styleGeneration: null, createAssets: [], createFormat: 'Instagram carousel', createDirection: 'natural warmth', contentGeneration: null, libraryFilter: 'all' };
+const app = { state: null, currentProject: null, currentFit: null, screen: 'discover' };
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const esc = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[char]));
 const dateLabel = (value) => value ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(value)) : 'now';
 
-async function api(path, options = {}) {
-  const response = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...options });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message || result.error?.message || result.error || 'Something went wrong');
-  return result;
+async function api(path, options = {}) { const response = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...options }); const result = await response.json(); if (!response.ok) throw new Error(result.message || result.error?.message || result.error || 'Something went wrong'); return result; }
+function toast(message, kind = 'success') { const node = document.createElement('div'); node.className = 'toast'; node.innerHTML = `<strong>${kind === 'error' ? 'Riff' : 'Signal'}</strong>${esc(message)}`; $('#toast-region').append(node); window.setTimeout(() => node.remove(), 4000); }
+
+function showLanding() { $('#workspace').classList.add('hidden'); $('#landing').classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+async function showWorkspace() { $('#landing').classList.add('hidden'); $('#workspace').classList.remove('hidden'); await refresh(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function artClass(project) { return project?.visual || 'pantry'; }
+
+function renderCard(project, index, front = false) { return `<article class="project-card ${front ? 'front' : ''}" data-project-id="${esc(project.id)}"><div class="card-art ${esc(artClass(project))}"><small>${esc(project.kicker)}</small><span class="card-visual-label">${esc(project.stage)}</span></div><div class="card-info"><span class="card-kicker">${esc(project.signal)}</span><h3>${esc(project.title)}</h3><p>${esc(project.summary)}</p><div class="card-footer"><div class="card-tags">${project.tags.slice(0, 3).map((tag) => `<span>${esc(tag)}</span>`).join('')}</div><div class="card-owner"><b>${esc(project.owner.name)}</b><small>${esc(project.owner.role)}</small></div></div></div></article>`; }
+
+function renderDeck() {
+  const projects = app.state?.discover || [];
+  $('#remaining-count').textContent = String(projects.length).padStart(2, '0');
+  if (!projects.length) { $('#deck').innerHTML = '<div class="empty-deck"><strong>Your orbit is quiet.</strong><span>Reset the demo state or come back later for a new signal.</span></div>'; app.currentProject = null; return; }
+  app.currentProject = projects[0]; $('#deck').innerHTML = projects.slice(0, 3).reverse().map((project, index, arr) => renderCard(project, arr.length - index - 1, index === arr.length - 1)).join('');
+  app.currentFit = null; $('#agent-empty').classList.remove('hidden'); $('#agent-result').classList.add('hidden');
 }
 
-function toast(message, kind = 'success') {
-  const region = $('#toast-region'); const node = document.createElement('div'); node.className = 'toast';
-  node.innerHTML = `<strong>${kind === 'error' ? 'Evorin' : 'Saved'}</strong>${esc(message)}`; region.append(node); window.setTimeout(() => node.remove(), 4000);
+function renderMatches() {
+  const matches = app.state.matches.map((match) => ({ match, project: app.state.projects.find((item) => item.id === match.projectId) })).filter((item) => item.project);
+  $('#match-count').textContent = matches.length;
+  $('#matches-grid').innerHTML = matches.length ? matches.map(({ match, project }) => `<article class="match-card"><div class="mini-art ${esc(artClass(project))}"></div><h3>${esc(project.title)}</h3><p>You + ${esc(project.owner.name)} · ${esc(project.owner.role)}</p><div class="match-fit"><span>mutual interest</span><b>open</b></div><button data-match-detail="${esc(project.id)}">Open match ↗</button></article>`).join('') : '<div class="empty-result"><strong>No matches yet.</strong><span>Like a project with a reciprocal signal and see what happens.</span></div>';
+  $$('[data-match-detail]').forEach((button) => button.addEventListener('click', () => openProjectModal(button.dataset.matchDetail)));
 }
 
-function setView(view) {
-  app.view = view; const labels = { home: 'Home', style: 'Style me', create: 'Create', library: 'My library', taste: 'My taste' };
-  $$('.view').forEach((section) => section.classList.toggle('active-view', section.id === `${view}-view`));
-  $$('.nav-item').forEach((item) => item.classList.toggle('active', item.dataset.view === view));
-  $('#page-name').textContent = labels[view] || 'Home'; window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (view === 'library') renderLibrary(); if (view === 'taste') renderTaste();
+function renderSaved() {
+  const saved = app.state.saved.map((id) => app.state.projects.find((project) => project.id === id)).filter(Boolean);
+  $('#saved-grid').innerHTML = saved.length ? saved.map((project) => `<article class="saved-card"><div class="mini-art ${esc(artClass(project))}"></div><h3>${esc(project.title)}</h3><p>${esc(project.summary)}</p><button data-open-project="${esc(project.id)}">Open project ↗</button></article>`).join('') : '<div class="empty-result"><strong>Your shortlist is empty.</strong><span>Keep the maybe. Save a project from Discover.</span></div>';
+  $$('[data-open-project]').forEach((button) => button.addEventListener('click', () => openProjectModal(button.dataset.openProject)));
 }
 
-function artFor(name) { return `<div class="visual-art ${esc(name || 'look-sunday')}"></div>`; }
+function renderRemixes() { $('#remixes-list').innerHTML = app.state.remixes.length ? app.state.remixes.map((remix) => `<article class="remix-row"><span>↗</span><div><h3>${esc(remix.title)}</h3><p>${esc(remix.firstMilestone)} · ${esc(remix.status)} · ${dateLabel(remix.createdAt)}</p></div><button data-remix-detail="${esc(remix.id)}">Open brief ↗</button></article>`).join('') : '<div class="empty-result"><strong>No riffs yet.</strong><span>Open the agent on a project and ask it to create a separate remix brief.</span></div>'; $$('[data-remix-detail]').forEach((button) => button.addEventListener('click', () => openRemixModal(button.dataset.remixDetail))); }
 
-function renderHome() {
-  $('#recent-strip').innerHTML = app.state.savedExamples.slice(0, 3).map((item) => `<button class="recent-card" data-view="library">${artFor(item.visual)}<span class="recent-info"><span><b>${esc(item.title)}</b><small>${esc(item.subtitle)}</small></span><span>↗</span></span></button>`).join('');
+function switchScreen(screen) { app.screen = screen; const labels = { discover: 'Discover', matches: 'Matches', saved: 'Saved', remixes: 'Remixes' }; $$('.workspace-screen').forEach((item) => item.classList.toggle('active-screen', item.id === `${screen}-screen`)); $$('.workspace-nav-item').forEach((item) => item.classList.toggle('active', item.dataset.screen === screen)); $('#workspace-screen-name').textContent = labels[screen]; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+async function swipe(decision) {
+  if (!app.currentProject) return;
+  const card = document.querySelector('.project-card.front'); if (card) { card.classList.add(decision === 'like' ? 'swipe-right' : 'swipe-left'); }
+  try { const result = await api('/api/rally/swipe', { method: 'POST', body: JSON.stringify({ projectId: app.currentProject.id, decision }) }); await refresh(); if (result.match) openMatchModal(app.currentProject); else toast(decision === 'like' ? 'Signal sent. The orbit moved.' : decision === 'save' ? 'Saved to your shortlist.' : 'Passed. Your signal is clearer.'); } catch (error) { toast(error.message, 'error'); }
 }
 
-function fileToPayload(file, kind) {
-  return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve({ name: file.name, type: file.type, size: file.size, data: reader.result, kind }); reader.onerror = reject; reader.readAsDataURL(file); });
-}
+async function runFit(project = app.currentProject) { if (!project) return; $('#agent-empty').classList.add('hidden'); $('#agent-result').classList.remove('hidden'); $('#agent-result').innerHTML = '<div class="agent-loading"><span>✦</span><p>Reading the overlap…</p></div>'; try { const result = await api(`/api/rally/projects/${project.id}/fit`, { method: 'POST', body: JSON.stringify({}) }); app.currentFit = result.fit; renderAgent(result.fit, project); } catch (error) { toast(error.message, 'error'); } }
+function renderAgent(fit, project) { $('#agent-result').innerHTML = `<div class="fit-score"><small>PROJECT FIT · ${esc(project.title)}</small><strong>${fit.score}%</strong></div><div class="agent-bar"><i style="width:${fit.score}%"></i></div><div class="agent-list">${fit.strengths.map((item) => `<div><span>+</span><p><b>${esc(item)}</b><small>visible match</small></p></div>`).join('')}</div><div class="agent-tradeoff"><b>One trade-off</b><br />${esc(fit.tradeoffs[0])}</div><div class="agent-actions"><button id="agent-remix">Remix this</button><button class="secondary" id="agent-intro">Draft intro</button></div>`; $('#agent-remix').addEventListener('click', () => createRemix(project)); $('#agent-intro').addEventListener('click', () => createIntro(project, fit)); }
 
-async function uploadFiles(files, kind) {
-  if (!files.length) return [];
-  const payload = await Promise.all([...files].slice(0, 12).map((file) => fileToPayload(file, kind)));
-  const result = await api('/api/evorin/upload', { method: 'POST', body: JSON.stringify({ files: payload }) });
-  toast(`${result.assets.length} visual${result.assets.length === 1 ? '' : 's'} added to your private space.`); return result.assets;
-}
+async function createRemix(project) { try { const result = await api('/api/rally/remix', { method: 'POST', body: JSON.stringify({ projectId: project.id }) }); openRemixModal(result.remix.id); await refresh(); toast('A separate remix brief is ready.'); } catch (error) { toast(error.message, 'error'); } }
+async function createIntro(project, fit) { try { const result = await api('/api/rally/introduction', { method: 'POST', body: JSON.stringify({ projectId: project.id }) }); openIntroModal(project, result.draft); } catch (error) { toast(error.message, 'error'); } }
 
-function renderStylePreview() {
-  const box = $('#style-preview');
-  if (!app.styleAsset) { box.className = 'selected-preview'; box.innerHTML = ''; return; }
-  box.className = 'selected-preview has-image'; box.innerHTML = `<img src="${esc(app.styleAsset.data)}" alt="Uploaded style reference" /><div><b>${esc(app.styleAsset.name)}</b><small>Ready to read · ${Math.round(app.styleAsset.sizeBytes / 1024)} KB</small></div><button class="remove-asset" id="remove-style" title="Remove image">×</button>`;
-  $('#style-upload-status').textContent = '1 visual selected';
-  $('#remove-style').addEventListener('click', () => removeAsset(app.styleAsset.id, 'style'));
-}
+function openMatchModal(project) { $('#modal').innerHTML = `<div class="modal-top"><div><span class="eyebrow lime">Mutual signal</span><h3>It pulls both ways.</h3></div><button class="modal-close" data-close-modal>×</button></div><div class="match-orbit"><span>✦</span></div><p>You and <b>${esc(project.owner.name)}</b> both showed interest in <b>${esc(project.title)}</b>. That is enough for a next step, not a commitment.</p><div class="modal-actions"><button data-intro-modal="${esc(project.id)}">Draft an intro ↗</button><button class="secondary" data-close-modal>Keep exploring</button></div>`; openModal(); $('#modal [data-intro-modal]').addEventListener('click', () => createIntro(project, app.currentFit || { strengths: ['shared purpose'] })); }
+function openProjectModal(id) { const project = app.state.projects.find((item) => item.id === id); if (!project) return; $('#modal').innerHTML = `<div class="modal-top"><div><span class="eyebrow coral">${esc(project.kicker)}</span><h3>${esc(project.title)}</h3></div><button class="modal-close" data-close-modal>×</button></div><div class="mini-art ${esc(artClass(project))}" style="height:140px;border-radius:5px;margin:17px 0"></div><p>${esc(project.description)}</p><div class="modal-actions"><button data-modal-fit="${esc(project.id)}">Read fit ↗</button><button class="secondary" data-modal-remix="${esc(project.id)}">Remix plan</button></div>`; openModal(); $('#modal [data-modal-fit]').addEventListener('click', () => { closeModal(); switchScreen('discover'); app.currentProject = project; runFit(project); }); $('#modal [data-modal-remix]').addEventListener('click', () => createRemix(project)); }
+function openIntroModal(project, draft) { $('#modal').innerHTML = `<div class="modal-top"><div><span class="eyebrow lime">Draft only · never sent</span><h3>Start with a human note.</h3></div><button class="modal-close" data-close-modal>×</button></div><p>The agent found a first sentence. Edit it until it sounds like you.</p><textarea class="intro-text" id="intro-text">${esc(draft)}</textarea><div class="modal-actions"><button data-close-modal>Keep draft</button><button class="secondary" data-close-modal>Close</button></div>`; openModal(); }
+function openRemixModal(id) { const remix = app.state.remixes.find((item) => item.id === id); if (!remix) return; $('#modal').innerHTML = `<div class="modal-top"><div><span class="eyebrow gold">Separate fork brief</span><h3>${esc(remix.title)}</h3></div><button class="modal-close" data-close-modal>×</button></div><div class="remix-detail"><div><b>Preserve</b><p>${esc(remix.preserve)}</p></div><div><b>Change</b><p>${esc(remix.change)}</p></div><div><b>First milestone</b><p>${esc(remix.firstMilestone)}</p></div><div><b>Open questions</b><p>${remix.questions.map(esc).join('<br />')}</p></div></div><div class="modal-actions"><button data-close-modal>Keep this brief</button></div>`; openModal(); }
+function openModal() { $('#modal-layer').classList.remove('hidden'); $$('#modal [data-close-modal]').forEach((button) => button.addEventListener('click', closeModal)); }
+function closeModal() { $('#modal-layer').classList.add('hidden'); }
 
-async function handleStyleFiles(event) {
-  try { const assets = await uploadFiles(event.target.files, 'style'); app.styleAsset = assets[0]; renderStylePreview(); } catch (error) { toast(error.message, 'error'); }
-}
-
-function renderStyleResult() {
-  const root = $('#style-result');
-  if (!app.styleGeneration) { root.innerHTML = '<div class="empty-result"><strong>Your next look starts with a visual.</strong><span>Upload an outfit above, choose an occasion, and let Evorin make a point of view.</span></div>'; return; }
-  const result = app.styleGeneration.result;
-  root.innerHTML = `<div class="result-heading"><div><span class="eyebrow">03 · A point of view</span><h2>${esc(result.title)}</h2></div><span>${Math.round(result.confidence * 100)}% confidence · grounded in ${result.preferenceTrace.length} taste signals</span></div><div class="recommendation-grid">${result.recommendations.map((rec, index) => `<article class="recommendation-card"><span class="rec-number">0${index + 1} · ${esc(rec.category)}</span><h3>${esc(rec.value)}</h3><p>${esc(rec.rationale)}</p></article>`).join('')}</div><div class="result-actions"><span class="why-link">Why this works: <b>${esc(result.preferenceTrace.map((item) => item.label).join(' · '))}</b></span><div class="feedback-actions"><button data-style-feedback="accept">More like this</button><button data-style-feedback="reject">Less like this</button><button id="save-style">Save look</button><button id="export-style">Export</button></div></div><div class="preference-trace">${result.preferenceTrace.map((item) => `<span>${esc(item.label)} · ${Math.round(item.score * 100)}%</span>`).join('')}</div>`;
-  $$('[data-style-feedback]').forEach((button) => button.addEventListener('click', () => sendFeedback(button.dataset.styleFeedback, 'styling', result.sourcePreferenceIds?.[0], app.styleGeneration.id)));
-  $('#save-style').addEventListener('click', () => saveGeneration(app.styleGeneration.id, 'Soft structure, made yours'));
-  $('#export-style').addEventListener('click', () => exportGeneration(app.styleGeneration.id));
-}
-
-async function generateStyle() {
-  if (!app.styleAsset) { toast('Upload one visual first so I can ground the recommendation.', 'error'); return; }
-  const button = $('#style-generate'); button.disabled = true; button.innerHTML = 'Reading your look… <span>✦</span>';
-  try { const data = await api('/api/evorin/style/recommend', { method: 'POST', body: JSON.stringify({ assetId: app.styleAsset.id, occasion: app.styleOccasion }) }); app.styleGeneration = data.generation; renderStyleResult(); toast('Your recommendation is grounded in your current taste signals.'); } catch (error) { toast(error.message, 'error'); } finally { button.disabled = false; button.innerHTML = 'Read my look <span>✦</span>'; }
-}
-
-function renderCreatePreview() {
-  $('#create-count').textContent = `${app.createAssets.length} selected`;
-  $('#create-preview').innerHTML = app.createAssets.map((asset, index) => `<div class="thumb"><img src="${esc(asset.data)}" alt="Selected photo ${index + 1}" /><span>${index + 1}</span><button class="remove-asset" data-remove-asset="${esc(asset.id)}" title="Remove photo">×</button></div>`).join('');
-  $$('[data-remove-asset]').forEach((button) => button.addEventListener('click', () => removeAsset(button.dataset.removeAsset, 'content')));
-}
-
-async function handleCreateFiles(event) { try { app.createAssets = await uploadFiles(event.target.files, 'content'); renderCreatePreview(); } catch (error) { toast(error.message, 'error'); } }
-async function removeAsset(id, kind) { try { await api(`/api/evorin/assets/${id}`, { method: 'DELETE' }); if (kind === 'style') app.styleAsset = null; else app.createAssets = app.createAssets.filter((asset) => asset.id !== id); renderStylePreview(); renderCreatePreview(); await refresh(); toast('Visual removed from this space.'); } catch (error) { toast(error.message, 'error'); } }
-
-function renderContentResult() {
-  const root = $('#content-result');
-  if (!app.contentGeneration) { root.innerHTML = '<div class="empty-result"><strong>A story needs a handful of moments.</strong><span>Choose two or more photos, then let Evorin find the thread between them.</span></div>'; return; }
-  const result = app.contentGeneration.result;
-  root.innerHTML = `<div class="content-result"><div class="content-preview"></div><div class="content-copy"><span class="eyebrow">03 · Editable package · ${esc(result.format)}</span><h2>${esc(result.direction)}</h2><p>Evorin kept the edit direction at <b>${esc(result.editDirection)}</b> and wrote in your preference for <b>${esc(result.captionDirection)}</b>. Every field below is yours to change.</p><div class="caption-box"><b>${esc(result.caption)}</b><span>${result.hashtags.map(esc).join('  ')}</span></div><div class="preference-trace">${result.preferenceTrace.map((item) => `<span>${esc(item.label)} · ${Math.round(item.score * 100)}%</span>`).join('')}</div><div class="result-actions"><span class="why-link">${result.selectedAssets.length} photos · human review required</span><div class="feedback-actions"><button data-content-feedback="accept">More like this</button><button data-content-feedback="reject">Less like this</button><button id="save-content">Save package</button><button id="export-content">Export</button></div></div></div></div>`;
-  $$('[data-content-feedback]').forEach((button) => button.addEventListener('click', () => sendFeedback(button.dataset.contentFeedback, 'social', result.preferenceTrace?.[0]?.id, app.contentGeneration.id)));
-  $('#save-content').addEventListener('click', () => saveGeneration(app.contentGeneration.id, 'A quiet afternoon'));
-  $('#export-content').addEventListener('click', () => exportGeneration(app.contentGeneration.id));
-}
-
-async function generateContent() {
-  if (!app.createAssets.length) { toast('Choose at least one photo first.', 'error'); return; }
-  const button = $('#content-generate'); button.disabled = true; button.innerHTML = 'Finding the thread… <span>✦</span>';
-  try { const data = await api('/api/evorin/content/create', { method: 'POST', body: JSON.stringify({ assetIds: app.createAssets.map((item) => item.id), format: app.createFormat, direction: app.createDirection }) }); app.contentGeneration = data.generation; renderContentResult(); toast('Your editable content package is ready.'); } catch (error) { toast(error.message, 'error'); } finally { button.disabled = false; button.innerHTML = 'Compose the story <span>✦</span>'; }
-}
-
-async function saveGeneration(generationId, title) { try { await api('/api/evorin/save', { method: 'POST', body: JSON.stringify({ generationId, title }) }); await refresh(); toast('Saved to My library.'); } catch (error) { toast(error.message, 'error'); } }
-async function exportGeneration(generationId) { try { const manifest = await api('/api/evorin/export', { method: 'POST', body: JSON.stringify({ generationId }) }); const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `${manifest.exportId}.json`; link.click(); URL.revokeObjectURL(link.href); toast('Export manifest downloaded.'); } catch (error) { toast(error.message, 'error'); } }
-
-async function sendFeedback(signal, scope, preferenceId, generationId) { try { const result = await api('/api/evorin/feedback', { method: 'POST', body: JSON.stringify({ signal, scope, preferenceId, evidenceId: `${generationId}-${Date.now()}` }) }); await refresh(); toast(result.promoted ? 'Preference updated after repeated evidence.' : 'Signal saved. Two distinct examples make a preference reliable.'); } catch (error) { toast(error.message, 'error'); } }
-
-function renderLibrary() {
-  const examples = app.state.savedExamples.filter((item) => app.libraryFilter === 'all' || item.type === app.libraryFilter);
-  $('#library-grid').innerHTML = examples.length ? examples.map((item) => `<article class="library-card"><div class="library-visual">${artFor(item.visual)}</div><div class="library-card-info"><div><b>${esc(item.title)}</b><small>${esc(item.subtitle)} · saved ${dateLabel(item.savedAt)}</small></div><span>♡</span></div></article>`).join('') : '<div class="empty-result"><strong>Nothing saved here yet.</strong><span>Save a look or content package and it will land in this library.</span></div>';
-}
-
-function preferenceMarkup(preference) { return `<article class="preference-row"><span>${preference.scope === 'styling' ? '✦' : '◒'}</span><div><b>${esc(preference.label)}</b><small>${esc(preference.value)} · ${esc(preference.source)}</small></div><div class="pref-meter"><i style="width:${Math.round(preference.strength * 100)}%"></i></div><button data-edit-preference="${esc(preference.id)}" title="Edit preference">···</button></article>`; }
-function renderTaste() {
-  const style = app.state.preferences.filter((item) => item.scope === 'styling'); const social = app.state.preferences.filter((item) => item.scope === 'social');
-  $('#style-signal-count').textContent = `${style.length} signals`; $('#social-signal-count').textContent = `${social.length} signals`;
-  $('#style-preferences').innerHTML = style.length ? style.map(preferenceMarkup).join('') : '<div class="empty-result"><strong>No style memory yet.</strong><span>It will grow as you choose and save.</span></div>';
-  $('#social-preferences').innerHTML = social.length ? social.map(preferenceMarkup).join('') : '<div class="empty-result"><strong>No social memory yet.</strong><span>Approve a content package to start.</span></div>';
-  $('#learning-log').innerHTML = app.state.activity.filter((item) => item.kind === 'learned').slice(0, 4).map((item) => `<div class="log-row"><span>✦</span><div><b>${esc(item.title)}</b><small>${esc(item.detail)} · ${esc(item.time)}</small></div></div>`).join('') || '<div class="log-row"><span>·</span><div><b>Your learning log is quiet.</b><small>Feedback becomes visible here.</small></div></div>';
-  $$('[data-edit-preference]').forEach((button) => button.addEventListener('click', () => editPreference(button.dataset.editPreference)));
-}
-
-async function editPreference(id) { const preference = app.state.preferences.find((item) => item.id === id); if (!preference) return; const value = window.prompt(`Edit “${preference.label}”`, preference.value); if (!value || value === preference.value) return; try { await api(`/api/evorin/preferences/${id}`, { method: 'PATCH', body: JSON.stringify({ value }) }); await refresh(); toast('Your taste note was updated.'); } catch (error) { toast(error.message, 'error'); } }
-async function resetTaste() { if (!window.confirm('Reset all learned taste? You can always teach Evorin again.')) return; try { await api('/api/evorin/preferences/reset', { method: 'POST', body: JSON.stringify({}) }); await refresh(); toast('Learned taste reset.'); } catch (error) { toast(error.message, 'error'); } }
-
-async function refresh() { app.state = await api('/api/evorin/state'); renderHome(); renderLibrary(); renderTaste(); }
+async function refresh() { app.state = await api('/api/rally/state'); renderDeck(); renderMatches(); renderSaved(); renderRemixes(); }
 
 function bind() {
-  document.addEventListener('click', (event) => { const trigger = event.target.closest('[data-view]'); if (trigger) setView(trigger.dataset.view); });
-  $('#style-file').addEventListener('change', handleStyleFiles); $('#style-browse').addEventListener('click', () => $('#style-file').click()); $('#style-generate').addEventListener('click', generateStyle);
-  $('#create-files').addEventListener('change', handleCreateFiles); $('#create-browse').addEventListener('click', () => $('#create-files').click()); $('#content-generate').addEventListener('click', generateContent);
-  $$('#occasion-choices .choice').forEach((button) => button.addEventListener('click', () => { $$('#occasion-choices .choice').forEach((item) => item.classList.remove('active')); button.classList.add('active'); app.styleOccasion = button.dataset.occasion; }));
-  $$('#format-options .format-option').forEach((button) => button.addEventListener('click', () => { $$('#format-options .format-option').forEach((item) => item.classList.remove('active')); button.classList.add('active'); app.createFormat = button.dataset.format; }));
-  $$('.direction-options .direction').forEach((button) => button.addEventListener('click', () => { $$('.direction-options .direction').forEach((item) => item.classList.remove('active')); button.classList.add('active'); app.createDirection = button.dataset.direction; }));
-  $$('[data-library-filter]').forEach((button) => button.addEventListener('click', () => { $$('[data-library-filter]').forEach((item) => item.classList.remove('active')); button.classList.add('active'); app.libraryFilter = button.dataset.libraryFilter; renderLibrary(); }));
-  $('#reset-taste').addEventListener('click', resetTaste);
-  $('#notifications').addEventListener('click', () => toast('Evorin is private by default. Browser notifications will arrive when scheduled workflows are enabled.'));
+  $('#enter-workspace').addEventListener('click', showWorkspace); $('#hero-enter').addEventListener('click', showWorkspace); $('#bottom-enter').addEventListener('click', showWorkspace); $('#back-landing').addEventListener('click', (event) => { event.preventDefault(); showLanding(); });
+  $$('.workspace-nav-item').forEach((button) => button.addEventListener('click', () => switchScreen(button.dataset.screen)));
+  $('#pass-project').addEventListener('click', () => swipe('pass')); $('#like-project').addEventListener('click', () => swipe('like')); $('#save-project').addEventListener('click', () => swipe('save')); $('#run-fit-empty').addEventListener('click', () => runFit());
+  $('#signal-demo').addEventListener('click', () => { $('#fit-demo').classList.toggle('expanded'); toast('Fit reads stay grounded in visible context.'); });
+  $('#modal-layer').addEventListener('click', (event) => { if (event.target.id === 'modal-layer') closeModal(); });
+  document.addEventListener('keydown', (event) => { if ($('#workspace').classList.contains('hidden') || !app.currentProject || !$('#modal-layer').classList.contains('hidden')) return; if (event.key === 'ArrowLeft') swipe('pass'); if (event.key === 'ArrowRight') swipe('like'); if (event.key === ' ') { event.preventDefault(); swipe('save'); } });
 }
 
-async function init() { bind(); renderStyleResult(); renderContentResult(); try { await refresh(); } catch (error) { toast(error.message, 'error'); } }
+async function init() { bind(); try { await refresh(); } catch (error) { toast(error.message, 'error'); } }
 init();

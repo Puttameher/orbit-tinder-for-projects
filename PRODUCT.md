@@ -1,20 +1,20 @@
-# Evorin product brief
+# Riff product brief
 
 ## Register
 product
 
 ## Product purpose
-Evorin learns how a person chooses, edits, saves, and rejects visual work. It turns that taste memory into styling recommendations and editable social content packages without making the user explain their preferences again.
+Riff helps people discover projects and collaborators with the clarity of a great recommendation, not the noise of an infinite feed. It learns explicit signals, exposes fit evidence, and turns mutual interest into reversible next actions.
 
 ## Users
-Visual-first people who want useful AI that reflects their actual choices, including personal-style enthusiasts, social creators, and everyday users.
+Students, makers, designers, researchers, and early collaborators who want to find work worth building and people worth building with.
 
 ## Tone
 Grounded, capable, and human. The product should feel like an intelligent desk instrument, not a chatbot or an enterprise admin panel.
 
 ## Non-negotiables
-- Styling and social preferences remain task-scoped.
-- Every recommendation shows the signals used to ground it.
-- Feedback only changes taste memory after repeated evidence.
-- User reviews every generated caption, layout, and export.
-- Private media is never publicly accessible by default.
+- Project fit is based on visible, declared context.
+- A match requires mutual interest.
+- Agent explanations show strengths, trade-offs, and missing information.
+- Agent drafts never send messages or publish changes.
+- A remix is a separate brief and never overwrites the source project.
